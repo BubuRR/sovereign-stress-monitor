@@ -17,11 +17,6 @@ import urllib.request
 import os
 
 class RollingOnchainBuffer:
-    """
-    [МОДУЛЬ СТАБИЛИЗАЦИИ КОНТУРА]
-    Накопительный кольцевой буфер фиксированного размера для транзакций.
-    Полностью разглаживает секундный рыночный шум, вычисляя устойчивую медиану.
-    """
     def __init__(self, max_size=500):
         self.max_size = max_size
         self.buffer = []
@@ -45,8 +40,6 @@ class RollingOnchainBuffer:
 
 
 class SovereignGlobalMonitorV25_2:
-    # 🏛️ ИЕРАРХИЧЕСКАЯ МАТРИЦА СУВЕРЕННЫХ ПРОФИЛЕЙ СТРАН
-    # Демографические и фискальные коэффициенты актуализированы на сентябрь 2026 г.
     RAW_CONFIG = """
     {
       "GLOBAL_DEFAULTS": {
@@ -83,7 +76,10 @@ class SovereignGlobalMonitorV25_2:
         self.cache_stale_cycles = 0  
         self.high_stress_duration = 0  
         self.reference_mode = "normal"
-        self.csv_file = "ssm_historical_database.csv"
+        
+        # ФИКСАЦИЯ ПУТИ (Поправка Сергея): Явно привязываем файл к папке запуска скрипта
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        self.csv_file = os.path.join(current_dir, "ssm_historical_database.csv")
         
         self.global_config = json.loads(self.RAW_CONFIG)
         self.active_params = {}
@@ -94,19 +90,16 @@ class SovereignGlobalMonitorV25_2:
         self.pre_crisis_dbb = defaults.get("DBB_50D_AVERAGE_NORM", 20.0)
 
     def _switch_country_context(self, country_code):
-        """Переключение контекста страны внутри локальной памяти за 0.01 мс."""
         defaults = self.global_config.get("GLOBAL_DEFAULTS", {})
         profiles = self.global_config.get("COUNTRY_PROFILES", {})
         target_profile = profiles.get(country_code, profiles.get("US", {}))
         self.active_params = {**defaults, **target_profile}
 
     def _calculate_visibility_penalty(self, stale_cycles):
-        """Логарифмический штраф деградации каналов связи (Защита от слепоты кэша)."""
         if stale_cycles == 0: return 0.0
         return round(0.4 * math.log(stale_cycles + 1), 3)
 
     async def _fetch_yahoo_chart(self, symbol: str, default_key: str):
-        """[ШЛЮЗ BIG-TECH / СЫРЬЕ] — Сбор подлинного JSON-пакета котировок Yahoo Chart API."""
         url = f"https://yahoo.com{symbol}?interval=1d&range=5d"
         try:
             loop = asyncio.get_event_loop()
@@ -122,7 +115,6 @@ class SovereignGlobalMonitorV25_2:
             return self.active_params[default_key], f"YAHOO_{symbol}_TIMEOUT"
 
     async def _fetch_tronscan_backup_stream(self):
-        """[БЛОКЧЕЙН-ШЛЮЗ Б] — Прямой сбор очищенных транзакций через публичный REST API Tronscan."""
         url = "https://tronscanapi.com"
         try:
             loop = asyncio.get_event_loop()
@@ -140,7 +132,6 @@ class SovereignGlobalMonitorV25_2:
             return []
 
     async def _fetch_trongrid_contract_stream(self):
-        """[БЛОКЧЕЙН-ШЛЮЗ А] — Низкоуровневый Hex ABI парсер логов вызовов контракта USDT на TronGrid."""
         url = "https://trongrid.io"
         try:
             loop = asyncio.get_event_loop()
@@ -161,7 +152,6 @@ class SovereignGlobalMonitorV25_2:
             return []
 
     def _write_to_historical_csv(self, timestamp, country_code, risk_pct, status_level, current_smh, current_dbb, median_usdt):
-        """[GITHUB ACTIONS WORKFLOW MODULE] Автономное пополнение логов."""
         file_exists = os.path.exists(self.csv_file)
         try:
             with open(self.csv_file, "a", encoding="utf-8") as f:
@@ -174,7 +164,6 @@ class SovereignGlobalMonitorV25_2:
     async def execute_monitoring_cycle(self, country_code="US", past_risk=60.0, kinetic_factor=0.0, network_storm=False):
         self._switch_country_context(country_code)
         
-        # Асинхронный параллельный опрос всех шлюзов
         tasks = [
             self._fetch_yahoo_chart("SMH", "SMH_50D_AVERAGE_NORM"),
             self._fetch_yahoo_chart("DBB", "DBB_50D_AVERAGE_NORM"),
@@ -207,11 +196,25 @@ class SovereignGlobalMonitorV25_2:
             status_onchain = f"⚠️ GATEWAYS_DOWN_STALE_CYCLES_ACTIVE // CYCLES: {self.cache_stale_cycles}"
             use_dynamic = False
 
-        # Извлечение скользящей медианы кольцевого пула памяти
         live_median_usdt = self.onchain_buffer.get_rolling_median(self.active_params["HISTORICAL_MEDIAN_USDT"])
 
-        # Эпсилон-защита от деления на ноль
         smh_avg = max(self.active_params["SMH_50D_AVERAGE_NORM"], 1e-9)
         dbb_avg = max(self.active_params["DBB_50D_AVERAGE_NORM"], 1e-9)
         base_usdt = max(self.active_params["HISTORICAL_MEDIAN_USDT"], 1e-9)
 
+        baseline_smh = self.pre_crisis_smh if self.reference_mode == "pre_crisis" else smh_avg
+        baseline_dbb = self.pre_crisis_dbb if self.reference_mode == "pre_crisis" else dbb_avg
+
+        res_bubble = min(max((baseline_smh - current_smh) / baseline_smh * 5.0, 0.0), 1.0)
+        res_material = min(max((current_dbb - dbb_avg) / dbb_avg * 5.0, 0.0), 1.0)
+        
+        deviation_usdt = (live_median_usdt - base_usdt) / base_usdt
+        res_crypto = min(max(0.12 + deviation_usdt * 0.25, 0.0), 0.40)
+
+        material_deficit = max((1.0 - res_material) - self.active_params["GARAGE_BUFFER"], 0.0)
+        if material_deficit > 0.6: material_deficit *= 2.0  
+
+        fiscal_pressure = self.active_params["FISCAL_PRESSURE"]
+
+        total = res_bubble + material_deficit + res_crypto + fiscal_pressure
+        if total <= 0: total = 1.0
