@@ -77,7 +77,7 @@ class SovereignGlobalMonitorV25_2:
         self.high_stress_duration = 0  
         self.reference_mode = "normal"
         
-        # ФИКСАЦИЯ ПУТИ (Поправка Сергея): Явно привязываем файл к папке запуска скрипта
+        # АБСОЛЮТНАЯ ФИКСАЦИЯ ПУТИ К CSV
         current_dir = os.path.dirname(os.path.abspath(__file__))
         self.csv_file = os.path.join(current_dir, "ssm_historical_database.csv")
         
