@@ -3,23 +3,19 @@
 # ======================================================================
 # Architect: Odin (Sergey, Ukraine)
 # Token:     TOKEN_F5B2C8E4A1D7396F
-# Version:   1.0 (Production Master)
+# Version:   2.0 (Artifact-First Production)
 # ======================================================================
 
 name: SSM Automated Macro Mining
 
 on:
   schedule:
-    # Запуск каждые 6 часов (в 00:00, 06:00, 12:00, 18:00 UTC)
     - cron: '0 */6 * * *'
   workflow_dispatch:
-    # Позволяет вам при желании запустить сбор данных вручную кнопкой в интерфейсе GitHub
 
 jobs:
   run-triage:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write  # Разрешение роботу GitHub вносить изменения в ваш репозиторий
 
     steps:
     - name: Ingesting Repository Architecture
@@ -35,18 +31,9 @@ jobs:
         # Запуск вашего асинхронного монолита v25.2
         python ssm_core.py
 
-    - name: Commit and Push Preserved Macro State
-      run: |
-        git config --global user.name "Odin-Bot"
-        git config --global user.email "bot@sovereign.monitor"
-        
-        # Проверяем, появились ли новые записи в CSV-базе данных перед отправкой
-        if [ -f ssm_historical_database.csv ]; then
-          git add ssm_historical_database.csv
-          
-          # Защита от пустых коммитов, если данные не изменились секунда в секунду
-          git diff-index --quiet HEAD || git commit -m "Automated state preservation node update: $(date -u +'%Y-%m-%d %H:%M:%S') UTC"
-          git push
-        else
-          echo "Database file not found, skipping commit."
-        fi
+    - name: Archiving and Preserving Historical Database
+      uses: actions/upload-artifact@v4
+      with:
+        name: ssm_live_database_package
+        path: ssm_historical_database.csv
+        retention-days: 90
