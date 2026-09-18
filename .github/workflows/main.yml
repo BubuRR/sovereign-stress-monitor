@@ -3,7 +3,7 @@
 # ======================================================================
 # Architect: Odin (Sergey, Ukraine)
 # Token:     TOKEN_F5B2C8E4A1D7396F
-# Version:   2.0 (Artifact-First Production)
+# Version:   2.1 (Absolute Path Production)
 # ======================================================================
 
 name: SSM Automated Macro Mining
@@ -35,5 +35,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: ssm_live_database_package
-        path: ssm_historical_database.csv
+        # Маска **/ заставляет робота обыскать все папки контейнера и найти ИМЕННО измененный скриптом файл
+        path: |
+          **/ssm_historical_database.csv
         retention-days: 90
