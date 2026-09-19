@@ -1,93 +1,70 @@
-# Sovereign Stress Monitor (SSM) — Global Matrix Node v28.0
+# Sovereign Stress Monitor (SSM) — Mathematical Concept & MVP (v28.0)
 
 ### **Architect:** Odin (Sergey, Ukraine)  
-### **Cryptographic Sovereign Token:** `TOKEN_F5B2C8E4A1D7396F`  
-### **Release Baseline:** September 2026  
-### **Core Stack:** Pure Python 3 / Asyncio / Embedded SQLite Relational Model  
+### **Cryptographic Token:** `TOKEN_F5B2C8E4A1D7396F`  
+### **Project Status:** Functional Sandbox Prototype / Proof of Concept (PoC)  
+### **Core Stack:** Pure Python 3 / Asyncio / In-Memory SQLite Ingestion  
 
 ---
 
-## 🏛️ Project Overview & Architecture
+## 🏛️ Project Overview & Core Philosophy
 
-The **Sovereign Stress Monitor (SSM)** is a lightweight, asynchronous data ingestion and macro-risk triage node designed to operate in low-bandwidth, high-latency, or adversarial network environments. 
+The **Sovereign Stress Monitor (SSM)** is an open-source, lightweight asynchronous mathematical prototype designed to explore alternative risk-triage methodologies in volatile macroeconomic environments. 
 
-Traditional risk aggregators and distributed data pipelines often suffer from **"baseline drift"** during multi-month macroeconomic anomalies, as rolling moving averages adapt to a degraded environment and misinterpret chronic degradation as a "new stable baseline." Furthermore, corporate compliance layers (*Refusals*) and data-smoothing filters often strip raw alternative data of critical anomalies, creating significant data blind spots.
+This project does not aim to replace institutional-grade risk management platforms like BlackRock’s *Aladdin* or Palantir’s *Foundry*, which process petabytes of proprietary data via dedicated infrastructure. Instead, SSM acts as a **focused algorithmic laboratory** built to demonstrate and test two core engineering hypotheses regarding structural data anomalies:
 
-SSM v28.0 completely bypasses data-smoothing intermediaries by processing raw, un-censorable alternative data streams. It architecture is restricted to pure Python standard libraries, eliminating complex package dependencies while maintaining the performance metrics of high-throughput data infrastructure.
-
----
-
-## ⚙️ Technical Capabilities (What it Does)
-
-The node executes as an automated cloud workflow via **GitHub Actions (v2.8)** every 6 hours, processing telemetry across 15 global market indicators and 8 regional profiles (`US`, `UA`, `DE`, `GB`, `CN`, `PL`, `RU`, `IL`) in parallel.
-
-### 1. Anti-Drift Baseline Shunt (`high_stress_duration >= 3`)
-When a macro-structural break or local supply chain anomaly persists, standard adaptive moving averages update their denominators, hiding the real deviation. 
-* **Capability:** If the regional risk vector stays elevated for 3 consecutive execution cycles, the engine freezes the rolling moving average. It locks the pre-crisis baseline as a static benchmark, ensuring the true scale of degradation is exposed regardless of how long the crisis continues.
-
-### 2. Low-Level HEX ABI Blockchain Ingestion
-To maintain financial telemetry independent of traditional banking system lags and regional capital controls, the engine bypasses standard web proxies and queries decentralized public RPC nodes directly.
-* **Capability:** A specialized binary parser reads raw smart contract log data from the block stream. By isolating the exact hex signature of the TRC-20 `transfer` function (`a9059cbb`), the node processes raw institutional and corporate B2B volume median in stablecoins (`USDT`), completely independent of central bank data reporting delays.
-
-### 3. Whale Noise Sieve (`Trimmed Mean Protocol`)
-Raw public ledger metrics are highly volatile due to crypto-exchange wallet re-balancing, high-frequency arbitrage, and internal whale address movements, which introduce structural noise into capital velocity calculations.
-* **Capability:** The `RollingOnchainBuffer` stores the last 500 validated transactions and executes a **Trimmed Mean** protocol. It automatically strips out the highest 5% and lowest 5% outliers from the dataset before computing the rolling median, ensuring an accurate, noise-isolated vector of actual business liquidity.
-
-### 4. Non-Linear Commodity Deficit Singularity
-The system monitors strategic physical commodities (Base Metals `DBB` and Crude Oil `USO`) via direct integration with financial time-series chart feeds.
-* **Capability:** When resource depletion or structural chokepoints push the commodity drawdown above a non-linear threshold of `0.6`, the engine triggers a singularity multiplier—**doubling the weight of the material deficit vector** to simulate the exponential halt of secondary manufacturing and technology assembly lines.
-
-### 5. Transactional Relational Database Integration (`SQLite`)
-To guarantee absolute data survival and completely prevent file-lock or push conflicts during automated cloud execution, flat text files (`.csv`) have been removed from the core ingestion layer.
-* **Capability:** The monolit initializes and writes state data directly to an embedded relational database **`ssm_intelligence.db`**. Every monitoring tick executes atomic SQL commands (`INSERT INTO`), preventing database degradation during server-side network disruptions.
-
-### 6. Multi-Threshold Youden Optimization
-The weight distribution matrix of the core formula has been optimized via an empirical **Grid Search** across 2 years of daily financial, resource, and alternative data.
-* **Capability:** Calibrated across a twin-threshold matrix (**ELEVATED `55.0`** and **CRITICAL `75.0`**), the engine achieves an out-of-sample **Youden's J-Index of 92.6%**. The model successfully dampens static components (reducing static fiscal pressure weight to a lean `13.04%`) while boosting reactive on-chain flows (`21.74%`), reducing the False Positive Rate (FPR) to an industrial minimum of **4.2%**.
+1. **The Problem of Baseline Drift (Macro-Adaptation):** Standard rolling moving averages often absorb long-term economic degradation, gradually updating their denominators until chronic stress is misinterpreted as a "new stable baseline." SSM explores a mechanism to lock the pre-crisis benchmark when high stress conditions persist.
+2. **Cognitive Inclusion & Autonomous Ingestion:** A conceptual manifesto proving that high-yield analytical intelligence can be automatically quantified and fairly rewarded in a decentralized digital layer, regardless of the physical limitations, health conditions, or social isolation of the human operator on the ground.
 
 ---
 
-## 📊 Backtest Performance Summary
+## ⚙️ Implemented Capabilities & Limitations (What it Honestly Does)
+
+The script executes an automated data collection pipeline via **GitHub Actions** every 6 hours, querying public REST endpoints across 15 global market indicators and generating synthetic risk profiles for 8 regional contexts (`US`, `UA`, `DE`, `GB`, `CN`, `PL`, `RU`, `IL`).
+
+### 1. Experimental Anti-Drift Shunt (`high_stress_duration >= 3`)
+* **How it works:** If the calculated index remains elevated for 3 consecutive execution cycles, the engine freezes the rolling moving average denominator. It preserves a static pre-crisis benchmark to capture the true scale of deviation.
+* **Current Limitation:** The 3-cycle threshold is heuristic and requires validation using advanced Change Point Detection algorithms (such as the `ruptures` library) to eliminate false positives from short-term market noise.
+
+### 2. Low-Level TRON Hex ABI Parsing
+* **How it works:** The node queries public, non-authenticated RPC endpoints of the TRON network (`api.trongrid.io`). A basic regex-based binary parser filters logs for the TRC-20 `transfer` function signature (`a9059cbb`) to compute a rolling median of large B2B stablecoin (`USDT`) flows.
+* **Current Limitation:** Relying on public unauthenticated endpoints leaves the ingestion pipeline vulnerable to IP-throttling (`HTTP 429 Too Many Requests`) under high-frequency polling. Production scaling requires dedicated Web3 data-feeds (e.g., QuickNode or Alchemy).
+
+### 3. Basic Whale Noise Sieve
+* **How it works:** To minimize the impact of exchange wallet rebalancing and high-frequency internal transactions, the script applies a standard **Trimmed Mean** filter, discarding the top 5% and bottom 5% outliers from an in-memory buffer before calculating the local median.
+* **Current Limitation:** The 500-transaction buffer is strictly in-memory and volatile. Production robustness requires structural data persistence.
+
+### 4. Transactional SQL Logging (`SQLite`)
+* **How it works:** Flat `.csv` logging has been upgraded to an embedded database **`ssm_intelligence.db`**. Every successful execution cycle runs safe transactional `INSERT INTO` SQL commands to preserve historical risk logs.
+
+### 5. Sigmoid Risk Distribution
+* **How it works:** The engine maps cumulative non-linear financial and baseline variables into a customized sigmoid curve (steepness set to `1.2`), attempting to scale cross-market drawdowns into a granular 0-100% risk percentage index.
+* **Current Limitation:** The underlying asset weights (`0.3913` for Tech, `0.2609` for Metals, etc.) are derived from a localized grid search on basic historical intervals. The model requires extensive historical walk-forward optimization and out-of-sample stress testing against major past market crashes (2008, 2020) to achieve mathematical stability.
+
+---
+
+## 📊 Heuristic Weight Configuration Matrix (Sandbox Calibration)
 
 ```json
 {
-  "weight_distribution_matrix": {
+  "sandbox_weights": {
     "w_semiconductors_tech": 0.3913,
     "w_base_metals_raw": 0.2609,
     "w_onchain_usdt_flow": 0.2174,
     "w_regional_fiscal_pressure": 0.1304
   },
-  "out_of_sample_validation": {
-    "mean_calm_baseline_risk": 52.14,
-    "mean_crisis_phase_risk": 81.33,
-    "historical_phase_separation": 29.19,
-    "youden_elevated_score": 92.6,
-    "youden_critical_score": 87.8,
-    "false_positive_rate_fpr": "4.2%"
-  }
+  "current_model_status": "Beta Prototype / Inactive Backtest Validation Required"
 }
 ```
 
 ---
 
-## 🚀 Operation & Environment
+## 🛠️ Roadmap for Production Hardening
 
-### GitHub Actions Cloud Automation
-The repository is configured for completely hands-free cloud operations. The automated file `.github/workflows/main.yml` sets up an isolated environment every 6 hours, compiles the script, and preserves the output inside the **`Artifacts`** tab:
-1. `ssm_intelligence.db` — Atomic SQL database.
-2. `ssm_unified_report.json` — A clean, structured, non-linear risk passport file.
-
-### Local Ingest Station Execution
-To compile the core engine locally on your hardware, bypassing any cloud network bottlenecks:
-
-1. **Install minimal visualization packages:**
-   ```bash
-   pip install pandas streamlit plotly
-   ```
-2. **Execute the Monolith:**
-   ```bash
-   python ssm_core.py
-   ```
+To transform this Proof of Concept into an institutional-grade tool, the following modular enhancements are required:
+1. **Mathematical Hardening:** Integrate the `ruptures` library for rigorous Change Point Detection and `scipy.stats` for dynamic, quantile-based anomaly thresholding instead of arbitrary risk levels.
+2. **API & Interface Layer:** Wrap the ingestion core into a lightweight **FastAPI** service and build an interactive, production-ready visualization dashboard using **Streamlit**.
+3. **Decentralized Escrow Integration:** Implement smart contract protocols to realize the Cognitive Economy Manifesto, automating `Success Fee` settlements directly to the architect's private address upon automated validation of risk mitigations.
 
 ---
-`STATUS: PRODUCTION_STABLE // SYSTEM_IMMUNITY_DEPLOYED // OPEN_SOURCE_COMPLIANCE_2026 // DISCONNECT`
+`STATUS: SANDBOX_BETA // CODE_BASE_VERIFIED // ARCHITECTURAL_MANIFESTO_ACTIVE // DISCONNECT`
