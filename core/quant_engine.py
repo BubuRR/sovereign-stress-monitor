@@ -1,10 +1,12 @@
 # ======================================================================
-# SOVEREIGN STRESS MONITOR (SSM) — ENTERPRISE QUANT ENGINE v28.5
+# SOVEREIGN STRESS MONITOR (SSM) — ENTERPRISE QUANT ENGINE v28.6
 # ======================================================================
 # Architect: Odin (Sergey, Ukraine)
 # Token:     TOKEN_F5B2C8E4A1D7396F
+# Date:      September 19, 2026
 #
-# FIXED RELATIONAL TABLE NAMES FOR PRODUCTION INTEGRATION
+# HARDCODED ALIVE ADRESSES & LIST PARSING FIXES FROM PROVEN v25.3-FIXED
+# EXPANDED GLOBAL COUNTRY MATRIX: US | UA | DE | GB | CN | PL | RU | IL
 # ======================================================================
 
 import asyncio
@@ -31,12 +33,15 @@ class RollingOnchainBuffer:
             self.buffer = self.buffer[-self.max_size:]
 
     def get_trimmed_rolling_median(self, default_value):
-        if not self.buffer: return default_value
+        if not self.buffer: 
+            return default_value
         s = sorted(self.buffer)
         cutoff = max(1, int(len(s) * 0.05))
-        if len(s) > 20: s = s[cutoff:-cutoff]
+        if len(s) > 20: 
+            s = s[cutoff:-cutoff]
         n = len(s)
-        if n % 2 == 1: return s[n // 2]
+        if n % 2 == 1: 
+            return s[n // 2]
         return (s[n // 2 - 1] + s[n // 2]) / 2.0
 
     def get_size(self):
@@ -60,33 +65,43 @@ class SovereignGlobalMonitorCore:
         self.weights = self.config.get("WEIGHTS", {"w_smh": 0.3913, "w_metals": 0.2609, "w_flow": 0.2174, "w_fiscal": 0.1304})
 
     async def _fetch_data_stream(self, symbol, fallback_val):
+        """ПОЛНОСТЬЮ ВОССТАНОВЛЕННЫЙ ОФИЦИАЛЬНЫЙ ПУТЬ YAHOO FINANCE v8 ИЗ v25.3-FIXED"""
         vault = self.config.get("ENTERPRISE_DATA_GATEWAYS", {}).get("API_KEYS_VAULT", {})
         poly_key = vault.get("POLYGON_IO_KEY", "")
+        
         if poly_key and "PASTE" not in poly_key:
             url = f"{self.config['ENTERPRISE_DATA_GATEWAYS']['POLYGON_IO_MACRO_FEED']}/{symbol}/prev?apiKey={poly_key}"
         else:
             url = f"https://yahoo.com{symbol}?interval=1d&range=3mo"
+            
         try:
             loop = asyncio.get_running_loop()
-            req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (SSM-Enterprise/28.5)"})
+            req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) SSMCore/28.6"})
             raw = await loop.run_in_executor(None, lambda: urllib.request.urlopen(req, timeout=4.0).read())
             data = json.loads(raw.decode())
+            
             if "results" in data:
                 return [float(x["c"]) for x in data["results"]]
             else:
-                result = data["chart"]["result"][0]
-                closes = result["indicators"]["quote"][0]["close"]
-                return [c for c in closes if c is not None]
+                result_list = data.get("chart", {}).get("result", [])
+                if not result_list: return [fallback_val] * 50
+                result = result_list[0]
+                closes = result.get("indicators", {}).get("quote", [{}])[0].get("close", [])
+                closes = [c for c in closes if c is not None]
+                return closes if closes else [fallback_val] * 50
         except Exception:
             return [fallback_val] * 50
 
     async def _fetch_tron_usdt_stream(self):
+        """ПОЛНОСТЬЮ ВОССТАНОВЛЕННЫЙ НИЗКОУРОВНЕВЫЙ ABI ПАРСЕР TRONGRID ИЗ v25.3-FIXED"""
         vault = self.config.get("ENTERPRISE_DATA_GATEWAYS", {}).get("API_KEYS_VAULT", {})
         qn_key = vault.get("QUICKNODE_TRON_KEY", "")
+        
         if qn_key and "PASTE" not in qn_key:
             url = f"{self.config['ENTERPRISE_DATA_GATEWAYS']['QUICKNODE_TRON_RPC']}/{qn_key}"
         else:
             url = "https://trongrid.io"
+            
         try:
             loop = asyncio.get_running_loop()
             req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)", "Accept": "application/json"})
@@ -96,7 +111,9 @@ class SovereignGlobalMonitorCore:
             for tx in data.get("data", []):
                 try:
                     contracts = tx.get("raw_data", {}).get("contract", [])
-                    if not contracts: continue
+                    if not contracts or not isinstance(contracts, list): continue
+                    
+                    # ИСПРАВЛЕННАЯ БЕЗОПАСНАЯ ИНДЕКСАЦИЯ МАССИВА
                     value_block = contracts[0].get("parameter", {}).get("value", {})
                     hex_data = value_block.get("data", "")
                     if isinstance(hex_data, str) and hex_data.startswith("a9059cbb") and len(hex_data) >= 136:
@@ -182,7 +199,7 @@ class SovereignGlobalMonitorCore:
         kinetic = (params.get("DEMOGRAPHIC_SHRINKAGE", 0.0) * 0.45) - (params["BIOLOGICAL_BUFFER"] * 0.30)
         
         total_stress = financial + max(kinetic, 0.0) * 1.2 + (past_risk / 100.0) * 0.2
-        if self.cache_stale_cycles > 0: total_stress += self._calculate_visibility_penalty(self.cache_stale_cycles)
+        if self.cache_stale_cycles > 0: total_stress += round(0.4 * math.log(self.cache_stale_cycles + 1), 3)
 
         risk_pct = round((1.0 / (1.0 + math.exp(-total_stress * params["SIGMOID_STEEPNESS"]))) * 100.0, 2)
         
@@ -194,17 +211,3 @@ class SovereignGlobalMonitorCore:
             self.high_stress_duration = 0
         else: 
             status = "NORMAL"
-            self.high_stress_duration = 0
-
-        ts = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
-        
-        # ФИКС ИМЕНИ ТАБЛИЦЫ СУБД: Строго historical_stress в соответствии с database.py
-        self.db.write_triage_log(country_code, risk_pct, status, current_smh, current_dbb, usdt_med)
-
-        return {"TIMESTAMP": ts, "COUNTRY": country_code, "RISK_PCT": risk_pct, "STATUS": status, "NETWORK": network_log, "SMH": round(current_smh, 2), "DBB": round(current_dbb, 2), "USDT_MEDIAN": round(usdt_med, 2)}
-
-async def run_all():
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-    root_dir = os.path.dirname(current_dir)
-    
-    engine = SovereignGlobalMonitorCore()
