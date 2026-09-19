@@ -1,22 +1,23 @@
-# Использование легковесного базового образа Python 3.11 на Linux Alpine
+# Lightweight Python 3.11 base image
 FROM python:3.11-slim
 
-# Установка системных зависимостей для сборки C-расширений (необходимы для numpy/scipy)
+# System deps for building C extensions (numpy/scipy/ruptures)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-# Копируем и устанавливаем легкие промышленные зависимости одной строкой
-RUN pip install --no-cache-dir fastapi uvicorn pandas streamlit plotly ruptures scipy numpy
+# Install Python dependencies from requirements.txt (better layer cache)
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Копируем всю структуру репозитория внутрь контейнера
+# Copy full repository into the container
 COPY . .
 
-# Открываем порты: 8000 для FastAPI бэкэнда, 8501 для цветного дашборда Streamlit
+# Ports: 8000 FastAPI backend, 8501 Streamlit dashboard
 EXPOSE 8000
 EXPOSE 8501
 
-# Команда по умолчанию запускает бэкэнд-сервер автоматизации в фоновом режиме
+# Default: API gateway
 CMD ["uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8000"]

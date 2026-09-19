@@ -1,0 +1,119 @@
+{
+  "HEADER": "SSM_UNIFIED_RISK_PASSPORT",
+  "VERSION": "28.7",
+  "ARCHITECT_TOKEN": "TOKEN_F5B2C8E4A1D7396F",
+  "TIMESTAMP_UTC": "2026-09-19 09:22:24",
+  "WEIGHTS": {
+    "w_smh": 0.3913,
+    "w_metals": 0.2609,
+    "w_flow": 0.2174,
+    "w_fiscal": 0.1304
+  },
+  "DATA_DYNAMIC_FEEDS": [
+    {
+      "COUNTRY": "US",
+      "TIMESTAMP_UTC": "2026-09-19 09:22:20",
+      "RISK_PCT": 62.03,
+      "STATUS": "ELEVATED",
+      "SMH": 573.0,
+      "DBB": 25.94,
+      "USDT_MEDIAN": 381.06,
+      "NETWORK": "COMMERCIAL_FEED_CONNECTED",
+      "REFERENCE_MODE": "normal",
+      "CHANGE_POINT_SMH": false,
+      "CHANGE_POINT_DBB": false
+    },
+    {
+      "COUNTRY": "UA",
+      "TIMESTAMP_UTC": "2026-09-19 09:22:20",
+      "RISK_PCT": 66.01,
+      "STATUS": "ELEVATED",
+      "SMH": 573.0,
+      "DBB": 25.94,
+      "USDT_MEDIAN": 704.75,
+      "NETWORK": "COMMERCIAL_FEED_CONNECTED",
+      "REFERENCE_MODE": "normal",
+      "CHANGE_POINT_SMH": false,
+      "CHANGE_POINT_DBB": false
+    },
+    {
+      "COUNTRY": "DE",
+      "TIMESTAMP_UTC": "2026-09-19 09:22:21",
+      "RISK_PCT": 62.3,
+      "STATUS": "ELEVATED",
+      "SMH": 573.0,
+      "DBB": 25.94,
+      "USDT_MEDIAN": 847.0,
+      "NETWORK": "COMMERCIAL_FEED_CONNECTED",
+      "REFERENCE_MODE": "normal",
+      "CHANGE_POINT_SMH": false,
+      "CHANGE_POINT_DBB": false
+    },
+    {
+      "COUNTRY": "GB",
+      "TIMESTAMP_UTC": "2026-09-19 09:22:22",
+      "RISK_PCT": 62.2,
+      "STATUS": "ELEVATED",
+      "SMH": 573.0,
+      "DBB": 25.94,
+      "USDT_MEDIAN": 847.0,
+      "NETWORK": "DEGRADED_FALLBACK_ACTIVE",
+      "REFERENCE_MODE": "normal",
+      "CHANGE_POINT_SMH": false,
+      "CHANGE_POINT_DBB": false
+    },
+    {
+      "COUNTRY": "CN",
+      "TIMESTAMP_UTC": "2026-09-19 09:22:23",
+      "RISK_PCT": 62.44,
+      "STATUS": "ELEVATED",
+      "SMH": 573.0,
+      "DBB": 25.94,
+      "USDT_MEDIAN": 847.0,
+      "NETWORK": "DEGRADED_FALLBACK_ACTIVE",
+      "REFERENCE_MODE": "normal",
+      "CHANGE_POINT_SMH": false,
+      "CHANGE_POINT_DBB": false
+    },
+    {
+      "COUNTRY": "PL",
+      "TIMESTAMP_UTC": "2026-09-19 09:22:23",
+      "RISK_PCT": 62.3,
+      "STATUS": "ELEVATED",
+      "SMH": 573.0,
+      "DBB": 25.94,
+      "USDT_MEDIAN": 847.0,
+      "NETWORK": "DEGRADED_FALLBACK_ACTIVE",
+      "REFERENCE_MODE": "normal",
+      "CHANGE_POINT_SMH": false,
+      "CHANGE_POINT_DBB": false
+    },
+    {
+      "COUNTRY": "RU",
+      "TIMESTAMP_UTC": "2026-09-19 09:22:23",
+      "RISK_PCT": 63.98,
+      "STATUS": "ELEVATED",
+      "SMH": 573.0,
+      "DBB": 25.94,
+      "USDT_MEDIAN": 847.0,
+      "NETWORK": "DEGRADED_FALLBACK_ACTIVE",
+      "REFERENCE_MODE": "normal",
+      "CHANGE_POINT_SMH": false,
+      "CHANGE_POINT_DBB": false
+    },
+    {
+      "COUNTRY": "IL",
+      "TIMESTAMP_UTC": "2026-09-19 09:22:24",
+      "RISK_PCT": 63.42,
+      "STATUS": "ELEVATED",
+      "SMH": 573.0,
+      "DBB": 25.94,
+      "USDT_MEDIAN": 847.0,
+      "NETWORK": "DEGRADED_FALLBACK_ACTIVE",
+      "REFERENCE_MODE": "normal",
+      "CHANGE_POINT_SMH": false,
+      "CHANGE_POINT_DBB": false
+    }
+  ],
+  "COUNTRIES_PROCESSED": 8
+}
