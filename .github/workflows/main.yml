@@ -3,15 +3,17 @@
 # ======================================================================
 # Architect: Odin (Sergey, Ukraine)
 # Token:     TOKEN_F5B2C8E4A1D7396F
-# Version:   2.1 (Production Master Build)
+# Version:   2.5 (Artifact-First Global Production)
 # ======================================================================
 
 name: SSM Automated Macro Mining
 
 on:
   schedule:
+    # Беспилотный автоматический запуск каждые 6 часов (4 раза в сутки по UTC)
     - cron: '0 */6 * * *'
   workflow_dispatch:
+    # Открывает кнопку ручного принудительного запуска в интерфейсе GitHub
 
 jobs:
   run-triage:
@@ -28,12 +30,14 @@ jobs:
 
     - name: Executing Sovereign Master Ingestion
       run: |
+        # Сервер запускает ваш глобальный многостраничный монолит
         python ssm_core.py
 
     - name: Archiving and Preserving Historical Database
       uses: actions/upload-artifact@v4
       with:
         name: ssm_live_database_package
+        # Маска **/ принудительно заставляет робота обыскать все папки и забрать файл базы
         path: |
           **/ssm_historical_database.csv
         retention-days: 90
