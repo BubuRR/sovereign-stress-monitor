@@ -1,23 +1,20 @@
 # ======================================================================
 # SOVEREIGN STRESS MONITOR (SSM) — AUTOMATED DATA INGESTION WORKFLOW
 # ======================================================================
-# Architect: Odin (Sergey, Ukraine)
-# Token:     TOKEN_F5B2C8E4A1D7396F
-# Version:   2.5 (Artifact-First Global Production)
+# Version: 2.6 (hardened for Actions)
 # ======================================================================
 
 name: SSM Automated Macro Mining
 
 on:
   schedule:
-    # Беспилотный автоматический запуск каждые 6 часов (4 раза в сутки по UTC)
     - cron: '0 */6 * * *'
   workflow_dispatch:
-    # Открывает кнопку ручного принудительного запуска в интерфейсе GitHub
 
 jobs:
   run-triage:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     steps:
     - name: Ingesting Repository Architecture
@@ -29,15 +26,23 @@ jobs:
         python-version: '3.11'
 
     - name: Executing Sovereign Master Ingestion
+      id: ssm
       run: |
-        # Сервер запускает ваш глобальный многостраничный монолит
+        set -o pipefail
         python ssm_core.py
+      continue-on-error: true
+
+    - name: Show SSM exit status
+      run: |
+        echo "SSM step conclusion: ${{ steps.ssm.outcome }}"
+        ls -la ssm_historical_database.csv 2>/dev/null || echo "CSV not created yet"
 
     - name: Archiving and Preserving Historical Database
+      if: always()
       uses: actions/upload-artifact@v4
       with:
         name: ssm_live_database_package
-        # Маска **/ принудительно заставляет робота обыскать все папки и забрать файл базы
         path: |
           **/ssm_historical_database.csv
+        if-no-files-found: warn
         retention-days: 90
