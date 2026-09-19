@@ -1,0 +1,34 @@
+name: SSM Automated Macro Mining
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+
+jobs:
+  run-triage:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Install dependencies
+      run: pip install -r requirements.txt
+
+    - name: Run SSM core
+      run: python ssm_core.py
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: ssm_live_database_package
+        path: |
+          **/ssm_intelligence.db
+          **/ssm_unified_report.json
+        if-no-files-found: error
+        retention-days: 90
