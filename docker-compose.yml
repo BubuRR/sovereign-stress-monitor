@@ -1,19 +1,20 @@
 version: '3.8'
 
 services:
-  # Сервер дистрибуции данных (FastAPI Backend Layer)
+  # Вычислительное ядро и сервер дистрибуции данных (FastAPI Backend)
   ssm_backend:
     build: .
     container_name: ssm_backend_container
     ports:
       - "8000:8000"
     volumes:
+      - ssm_shared_data:/app/shared_data
       - .:/app
     restart: always
     environment:
       - PYTHONUNBUFFERED=1
 
-  # Панель триажа рисков верхнего уровня (Streamlit Frontend Layer)
+  # Панель триажа рисков верхнего уровня (Streamlit Frontend)
   ssm_dashboard:
     build: .
     container_name: ssm_dashboard_container
@@ -21,7 +22,11 @@ services:
     ports:
       - "8501:8501"
     volumes:
+      - ssm_shared_data:/app/shared_data
       - .:/app
     depends_on:
       - ssm_backend
     restart: always
+
+volumes:
+  ssm_shared_data:
