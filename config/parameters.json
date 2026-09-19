@@ -14,6 +14,9 @@
     "w_flow": 0.2174,
     "w_fiscal": 0.1304
   },
+  "MACRO_RESEARCH_FEEDS": {
+    "FED_GPR_INDEX_URL": "https://geopoliticalriskindex.com"
+  },
   "ENTERPRISE_DATA_GATEWAYS": {
     "POLYGON_IO_MACRO_FEED": "https://polygon.io",
     "QUICKNODE_TRON_RPC": "https://quicknode.com",
