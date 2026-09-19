@@ -1,9 +1,9 @@
 # ======================================================================
-# SOVEREIGN STRESS MONITOR (SSM) — GLOBAL MULTI-COUNTRY MATRIX NODE v25.6
+# SOVEREIGN STRESS MONITOR (SSM) v27.0 — COMBAT CORE + GLOBAL RADAR
 # ======================================================================
-# Architect: Odin (Sergey, Ukraine)
-# Countries: US | UA | DE | GB | CN | PL | RU | IL
-# Hardened for GitHub Actions (no crash on single API failure)
+# Countries: US UA DE GB CN PL RU IL
+# Global board: tech equity metals energy rates credit fx vol crypto
+# Hardened for GitHub Actions
 # ======================================================================
 
 import asyncio
@@ -28,75 +28,64 @@ class RollingOnchainBuffer:
     def get_rolling_median(self, default_value):
         if not self.buffer:
             return default_value
-        sorted_values = sorted(self.buffer)
-        n = len(sorted_values)
+        s = sorted(self.buffer)
+        n = len(s)
         if n % 2 == 1:
-            return sorted_values[n // 2]
-        return (sorted_values[n // 2 - 1] + sorted_values[n // 2]) / 2.0
+            return s[n // 2]
+        return (s[n // 2 - 1] + s[n // 2]) / 2.0
 
     def get_size(self):
         return len(self.buffer)
 
 
-class SovereignGlobalMonitorV25_6:
+MARKETS = {
+    "SMH": {"sleeve": "tech", "name": "Semiconductors", "stress": "drawdown"},
+    "QQQ": {"sleeve": "tech", "name": "Nasdaq-100", "stress": "drawdown"},
+    "SPY": {"sleeve": "equity", "name": "S&P 500", "stress": "drawdown"},
+    "EEM": {"sleeve": "equity", "name": "Emerging Markets", "stress": "drawdown"},
+    "EWZ": {"sleeve": "equity", "name": "Brazil", "stress": "drawdown"},
+    "DBB": {"sleeve": "metals", "name": "Base Metals", "stress": "spike"},
+    "GLD": {"sleeve": "metals", "name": "Gold", "stress": "spike"},
+    "SLV": {"sleeve": "metals", "name": "Silver", "stress": "spike"},
+    "USO": {"sleeve": "energy", "name": "Crude Oil", "stress": "spike"},
+    "UNG": {"sleeve": "energy", "name": "Natural Gas", "stress": "spike"},
+    "TLT": {"sleeve": "rates", "name": "US 20Y Treasuries", "stress": "drawdown"},
+    "HYG": {"sleeve": "credit", "name": "US High Yield", "stress": "drawdown"},
+    "UUP": {"sleeve": "fx", "name": "US Dollar Index", "stress": "spike"},
+    "^VIX": {"sleeve": "vol", "name": "VIX", "stress": "level"},
+    "BTC-USD": {"sleeve": "crypto", "name": "Bitcoin", "stress": "drawdown"},
+}
+
+SLEEVE_WEIGHTS = {
+    "tech": 0.18, "equity": 0.14, "metals": 0.14, "energy": 0.10,
+    "rates": 0.10, "credit": 0.10, "fx": 0.08, "vol": 0.10, "crypto": 0.06,
+}
+
+
+class SovereignGlobalMonitorV27:
     RAW_CONFIG = """
     {
       "GLOBAL_DEFAULTS": {
-        "ALERT_THRESHOLD": 60.0,
-        "BASE_BLIND_SPOT": 0.35,
+        "ALERT_THRESHOLD": 70.0,
+        "ELEVATED_THRESHOLD": 55.0,
+        "BASE_BLIND_SPOT": 0.10,
         "BIOLOGICAL_BUFFER": 0.05,
-        "SMH_50D_AVERAGE_NORM": 240.0,
-        "DBB_50D_AVERAGE_NORM": 20.0
+        "SIGMOID_STEEPNESS": 1.2,
+        "SMH_BASELINE": 550.0,
+        "DBB_BASELINE": 25.0
       },
       "COUNTRY_PROFILES": {
-        "US": {
-          "FISCAL_PRESSURE": 0.35,
-          "GARAGE_BUFFER": 0.02,
-          "DEMOGRAPHIC_SHRINKAGE": 0.01,
-          "HISTORICAL_MEDIAN_USDT": 50000.0
-        },
-        "UA": {
-          "FISCAL_PRESSURE": 0.515,
-          "GARAGE_BUFFER": 0.15,
-          "DEMOGRAPHIC_SHRINKAGE": 0.28,
-          "HISTORICAL_MEDIAN_USDT": 5000.0
-        },
-        "DE": {
-          "FISCAL_PRESSURE": 0.45,
-          "GARAGE_BUFFER": 0.05,
-          "DEMOGRAPHIC_SHRINKAGE": 0.04,
-          "HISTORICAL_MEDIAN_USDT": 15000.0
-        },
-        "GB": {
-          "FISCAL_PRESSURE": 0.43,
-          "GARAGE_BUFFER": 0.04,
-          "DEMOGRAPHIC_SHRINKAGE": 0.03,
-          "HISTORICAL_MEDIAN_USDT": 25000.0
-        },
-        "CN": {
-          "FISCAL_PRESSURE": 0.28,
-          "GARAGE_BUFFER": 0.02,
-          "DEMOGRAPHIC_SHRINKAGE": 0.08,
-          "HISTORICAL_MEDIAN_USDT": 95000.0
-        },
-        "PL": {
-          "FISCAL_PRESSURE": 0.41,
-          "GARAGE_BUFFER": 0.10,
-          "DEMOGRAPHIC_SHRINKAGE": 0.06,
-          "HISTORICAL_MEDIAN_USDT": 12000.0
-        },
-        "RU": {
-          "FISCAL_PRESSURE": 0.38,
-          "GARAGE_BUFFER": 0.22,
-          "DEMOGRAPHIC_SHRINKAGE": 0.18,
-          "HISTORICAL_MEDIAN_USDT": 65000.0
-        },
-        "IL": {
-          "FISCAL_PRESSURE": 0.46,
-          "GARAGE_BUFFER": 0.08,
-          "DEMOGRAPHIC_SHRINKAGE": 0.12,
-          "HISTORICAL_MEDIAN_USDT": 20000.0
-        }
+        "US": {"FISCAL_PRESSURE": 0.20, "DEMOGRAPHIC_SHRINKAGE": 0.01, "USDT_BASELINE_MEDIAN": 15000.0},
+        "UA": {"FISCAL_PRESSURE": 0.515, "DEMOGRAPHIC_SHRINKAGE": 0.28, "USDT_BASELINE_MEDIAN": 5000.0},
+        "DE": {"FISCAL_PRESSURE": 0.25, "DEMOGRAPHIC_SHRINKAGE": 0.04, "USDT_BASELINE_MEDIAN": 12000.0},
+        "GB": {"FISCAL_PRESSURE": 0.24, "DEMOGRAPHIC_SHRINKAGE": 0.03, "USDT_BASELINE_MEDIAN": 15000.0},
+        "CN": {"FISCAL_PRESSURE": 0.18, "DEMOGRAPHIC_SHRINKAGE": 0.08, "USDT_BASELINE_MEDIAN": 40000.0},
+        "PL": {"FISCAL_PRESSURE": 0.22, "DEMOGRAPHIC_SHRINKAGE": 0.06, "USDT_BASELINE_MEDIAN": 8000.0},
+        "RU": {"FISCAL_PRESSURE": 0.28, "DEMOGRAPHIC_SHRINKAGE": 0.18, "USDT_BASELINE_MEDIAN": 25000.0},
+        "IL": {"FISCAL_PRESSURE": 0.30, "DEMOGRAPHIC_SHRINKAGE": 0.12, "USDT_BASELINE_MEDIAN": 12000.0}
+      },
+      "WEIGHTS": {
+        "w_smh": 0.459, "w_metals": 0.153, "w_flow": 0.306, "w_fiscal": 0.082
       }
     }
     """
@@ -104,315 +93,358 @@ class SovereignGlobalMonitorV25_6:
     def __init__(self):
         self.cache_stale_cycles = 0
         self.high_stress_duration = 0
-        self.reference_mode = "normal"
-
         current_dir = os.path.dirname(os.path.abspath(__file__)) or "."
         self.csv_file = os.path.join(current_dir, "ssm_historical_database.csv")
-
         self.global_config = json.loads(self.RAW_CONFIG)
         self.active_params = {}
         self.onchain_buffer = RollingOnchainBuffer(max_size=500)
+        self.weights = dict(self.global_config.get("WEIGHTS", {}))
+        self._load_weights_file(current_dir)
+        d = self.global_config["GLOBAL_DEFAULTS"]
+        self.smh_baseline = d["SMH_BASELINE"]
+        self.dbb_baseline = d["DBB_BASELINE"]
+        self.radar_cache = None
 
-        defaults = self.global_config.get("GLOBAL_DEFAULTS", {})
-        self.pre_crisis_smh = defaults.get("SMH_50D_AVERAGE_NORM", 240.0)
-        self.pre_crisis_dbb = defaults.get("DBB_50D_AVERAGE_NORM", 20.0)
+    def _load_weights_file(self, base_dir):
+        path = os.path.join(base_dir, "weights.json")
+        if not os.path.exists(path):
+            return
+        try:
+            with open(path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            w = data.get("defaults") or data.get("weights")
+            if isinstance(w, dict) and "w_smh" in w:
+                self.weights = w
+                print(f"[SSM] loaded weights from {path}")
+        except Exception as e:
+            print(f"[SSM] weights.json skip: {e}", file=sys.stderr)
 
-    def _switch_country_context(self, country_code):
-        defaults = self.global_config.get("GLOBAL_DEFAULTS", {})
-        profiles = self.global_config.get("COUNTRY_PROFILES", {})
-        target_profile = profiles.get(country_code, profiles.get("US", {}))
-        self.active_params = {**defaults, **target_profile}
+    def _switch_country(self, code):
+        defaults = self.global_config["GLOBAL_DEFAULTS"]
+        profile = self.global_config["COUNTRY_PROFILES"].get(
+            code, self.global_config["COUNTRY_PROFILES"]["US"]
+        )
+        self.active_params = {**defaults, **profile}
 
-    def _calculate_visibility_penalty(self, stale_cycles):
-        if stale_cycles == 0:
-            return 0.0
-        return round(0.4 * math.log(stale_cycles + 1), 3)
-
-    async def _fetch_yahoo_chart(self, symbol, default_key):
-        url = f"https://query1.finance.yahoo.com/v8/finance/chart/{symbol}?interval=1d&range=5d"
+    async def _fetch_yahoo_closes(self, symbol, range_="3mo"):
+        url = f"https://query1.finance.yahoo.com/v8/finance/chart/{symbol}?interval=1d&range={range_}"
         try:
             loop = asyncio.get_running_loop()
-            req = urllib.request.Request(
-                url,
-                headers={"User-Agent": "Mozilla/5.0 (SSM_Monolith/25.6)"}
+            req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (SSM/27)"})
+            raw = await loop.run_in_executor(
+                None, lambda: urllib.request.urlopen(req, timeout=8.0).read()
             )
-            res = await loop.run_in_executor(
-                None, lambda: urllib.request.urlopen(req, timeout=4.0).read()
-            )
-            data = json.loads(res.decode("utf-8"))
-            result_list = data.get("chart", {}).get("result", [])
-            if not result_list:
-                return self.active_params[default_key], f"YAHOO_{symbol}_EMPTY"
+            data = json.loads(raw.decode())
+            closes = data["chart"]["result"][0]["indicators"]["quote"][0]["close"]
+            return [c for c in closes if c is not None]
+        except Exception:
+            return []
 
-            result = result_list[0]
-            closes = result.get("indicators", {}).get("quote", [{}])[0].get("close", [])
-            closes = [c for c in closes if c is not None]
+    async def _fetch_yahoo_last(self, symbol, fallback):
+        closes = await self._fetch_yahoo_closes(symbol, "5d")
+        if closes:
+            return float(closes[-1]), f"YAHOO_{symbol}_OK"
+        return float(fallback), f"YAHOO_{symbol}_FAIL"
 
-            if closes:
-                return closes[-1], f"YAHOO_{symbol}_OK"
-            return self.active_params[default_key], f"YAHOO_{symbol}_EMPTY"
-        except Exception as e:
-            return self.active_params[default_key], f"YAHOO_{symbol}_FAIL:{type(e).__name__}"
-
-    async def _fetch_trongrid_contract_stream(self):
+    async def _fetch_tron_usdt(self):
         url = "https://api.trongrid.io/v1/contracts/TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t/transactions"
         try:
             loop = asyncio.get_running_loop()
             req = urllib.request.Request(
                 url,
-                headers={
-                    "User-Agent": "Mozilla/5.0 (SSM_Monolith/25.6)",
-                    "Accept": "application/json"
-                }
+                headers={"User-Agent": "Mozilla/5.0 (SSM/27)", "Accept": "application/json"},
             )
-            res = await loop.run_in_executor(
-                None, lambda: urllib.request.urlopen(req, timeout=4.0).read()
+            raw = await loop.run_in_executor(
+                None, lambda: urllib.request.urlopen(req, timeout=6.0).read()
             )
-            data = json.loads(res.decode("utf-8"))
-            tx_array = data.get("data", [])
+            data = json.loads(raw.decode())
             values = []
-            for tx in tx_array:
+            for tx in data.get("data", []):
                 try:
                     contracts = tx.get("raw_data", {}).get("contract", [])
                     if not contracts:
                         continue
-                    value_block = contracts[0].get("parameter", {}).get("value", {})
-                    hex_data = value_block.get("data", "")
-                    if isinstance(hex_data, str) and hex_data.startswith("a9059cbb") and len(hex_data) >= 136:
-                        amount = int(hex_data[-64:], 16) / 1e6
-                        if amount >= 100.0:
-                            values.append(amount)
+                    hx = contracts[0].get("parameter", {}).get("value", {}).get("data", "")
+                    if isinstance(hx, str) and hx.startswith("a9059cbb") and len(hx) >= 136:
+                        amt = int(hx[-64:], 16) / 1e6
+                        if amt >= 100.0:
+                            values.append(amt)
                 except Exception:
                     continue
             return values
         except Exception:
             return []
 
-    async def _fetch_tronscan_backup_stream(self):
-        url = "https://apilist.tronscanapi.com/api/token_trc20?contract=TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t&limit=1"
-        try:
-            loop = asyncio.get_running_loop()
-            req = urllib.request.Request(
-                url,
-                headers={"User-Agent": "Mozilla/5.0 (SSM_Monolith/25.6)"}
-            )
-            await loop.run_in_executor(
-                None, lambda: urllib.request.urlopen(req, timeout=4.0).read()
-            )
-            return []
-        except Exception:
-            return []
+    @staticmethod
+    def _sma(vals, n):
+        if len(vals) < n:
+            return None
+        return sum(vals[-n:]) / n
 
-    def _write_to_historical_csv(self, timestamp, country_code, risk_pct, status_level,
-                                 current_smh, current_dbb, median_usdt):
-        try:
-            file_exists = os.path.exists(self.csv_file)
-            with open(self.csv_file, "a", encoding="utf-8") as f:
-                if not file_exists:
-                    f.write("Timestamp,Country,Risk_Pct,Status_Level,SMH_Price,DBB_Price,USDT_Rolling_Median\n")
-                f.write(
-                    f"{timestamp},{country_code},{risk_pct},{status_level},"
-                    f"{current_smh},{current_dbb},{round(median_usdt, 2)}\n"
-                )
-        except Exception as e:
-            print(f"[WARN] CSV write failed: {e}", file=sys.stderr)
+    def _local_stress(self, closes, mode):
+        if not closes or len(closes) < 5:
+            return 0.0, {}
+        px = closes[-1]
+        base = self._sma(closes, min(50, len(closes))) or closes[0]
+        ch5 = (px - closes[-6]) / closes[-6] if len(closes) >= 6 else 0.0
+        if mode == "drawdown":
+            dd = max((base - px) / base, 0.0)
+            stress = min(dd * 4.0, 1.0)
+            if ch5 < -0.04:
+                stress = min(stress + abs(ch5) * 2.0, 1.0)
+            return stress, {"px": px}
+        if mode == "spike":
+            up = max((px - base) / base, 0.0)
+            stress = min(up * 5.0, 1.0)
+            if ch5 > 0.05:
+                stress = min(stress + ch5 * 1.5, 1.0)
+            return stress, {"px": px}
+        if mode == "level":
+            stress = min(max((px - 12.0) / 28.0, 0.0), 1.0)
+            return stress, {"px": px}
+        return 0.0, {"px": px}
 
-    async def execute_monitoring_cycle(self, country_code="US", past_risk=60.0,
-                                       kinetic_factor=0.0, network_storm=False):
-        self._switch_country_context(country_code)
+    async def build_global_radar(self):
+        per_symbol = {}
+        errors = []
 
-        if network_storm:
-            tasks = [
-                self._fetch_yahoo_chart("SMH", "SMH_50D_AVERAGE_NORM"),
-                self._fetch_yahoo_chart("DBB", "DBB_50D_AVERAGE_NORM"),
-                asyncio.sleep(0, result=[]),
-                asyncio.sleep(0, result=[]),
-            ]
-        else:
-            tasks = [
-                self._fetch_yahoo_chart("SMH", "SMH_50D_AVERAGE_NORM"),
-                self._fetch_yahoo_chart("DBB", "DBB_50D_AVERAGE_NORM"),
-                self._fetch_trongrid_contract_stream(),
-                self._fetch_tronscan_backup_stream(),
-            ]
+        async def one(sym, meta):
+            try:
+                closes = await self._fetch_yahoo_closes(sym, "3mo")
+                stress, diag = self._local_stress(closes, meta["stress"])
+                return sym, {
+                    "symbol": sym,
+                    "name": meta["name"],
+                    "sleeve": meta["sleeve"],
+                    "mode": meta["stress"],
+                    "stress": round(stress, 3),
+                    "stress_pct": round(stress * 100, 1),
+                    "px": round(diag["px"], 4) if diag.get("px") is not None else None,
+                }, None
+            except Exception as e:
+                return sym, None, type(e).__name__
 
-        try:
-            results = await asyncio.wait_for(asyncio.gather(*tasks, return_exceptions=True), timeout=8.0)
-
-            def safe_unpack(item, default):
-                if isinstance(item, Exception):
-                    return default
-                return item
-
-            smh_result = safe_unpack(results[0], (self.active_params["SMH_50D_AVERAGE_NORM"], "YAHOO_SMH_FAIL"))
-            dbb_result = safe_unpack(results[1], (self.active_params["DBB_50D_AVERAGE_NORM"], "YAHOO_DBB_FAIL"))
-            tg_values = safe_unpack(results[2], [])
-            ts_values = safe_unpack(results[3], [])
-
-            current_smh, status_b = smh_result if isinstance(smh_result, tuple) else (smh_result, "YAHOO_SMH_OK")
-            current_dbb, status_m = dbb_result if isinstance(dbb_result, tuple) else (dbb_result, "YAHOO_DBB_OK")
-
-            live_incoming_tx = []
-            if isinstance(tg_values, list):
-                live_incoming_tx.extend(tg_values)
-            if isinstance(ts_values, list):
-                live_incoming_tx.extend(ts_values)
-
-            if live_incoming_tx:
-                self.onchain_buffer.extend(live_incoming_tx)
-                self.cache_stale_cycles = 0
-                status_onchain = f"VERIFIED_MULTI_STREAM_OK (buffer_n={self.onchain_buffer.get_size()})"
+        results = await asyncio.gather(*[one(s, m) for s, m in MARKETS.items()])
+        for sym, row, err in results:
+            if row:
+                per_symbol[sym] = row
             else:
+                errors.append({"symbol": sym, "error": err})
+
+        usdt_med = self.onchain_buffer.get_rolling_median(12000.0)
+        if self.onchain_buffer.get_size() > 0:
+            base = 12000.0
+            usdt_stress = min(max((usdt_med - base) / base * 0.5, 0.0), 1.0)
+            per_symbol["USDT-TRON"] = {
+                "symbol": "USDT-TRON",
+                "name": "USDT large tx median",
+                "sleeve": "crypto",
+                "mode": "flow",
+                "stress": round(usdt_stress, 3),
+                "stress_pct": round(usdt_stress * 100, 1),
+                "px": round(usdt_med, 2),
+            }
+
+        bucket = {}
+        for row in per_symbol.values():
+            bucket.setdefault(row["sleeve"], []).append(row["stress"])
+        sleeve_stress = {sl: sum(a) / len(a) for sl, a in bucket.items()}
+
+        total_w = acc = 0.0
+        for sl, st in sleeve_stress.items():
+            w = SLEEVE_WEIGHTS.get(sl, 0.05)
+            acc += st * w
+            total_w += w
+        composite = (acc / total_w) if total_w else 0.0
+        risk_pct = round(100.0 / (1.0 + math.exp(-(composite - 0.25) * 6.0)), 2)
+        status = "CRITICAL" if risk_pct >= 75 else ("ELEVATED" if risk_pct >= 55 else "NORMAL")
+        ranked = sorted(per_symbol.values(), key=lambda x: x["stress"], reverse=True)
+
+        board = {
+            "COMPOSITE_RISK_PCT": risk_pct,
+            "STATUS": status,
+            "COMPOSITE_RAW": round(composite, 4),
+            "SLEEVES": {k: round(v * 100, 1) for k, v in sorted(sleeve_stress.items(), key=lambda x: -x[1])},
+            "TOP_STRESS": [
+                {"symbol": r["symbol"], "name": r["name"], "sleeve": r["sleeve"], "stress_pct": r["stress_pct"]}
+                for r in ranked[:8]
+            ],
+            "MARKETS": per_symbol,
+            "ERRORS": errors,
+        }
+        self.radar_cache = board
+        return board
+
+    def _compute_country_stress(self, smh, dbb, usdt_median, past_risk, kinetic_factor=0.0):
+        smh_dd = max((self.smh_baseline - smh) / max(self.smh_baseline, 1e-9), 0.0)
+        smh_stress = min(smh_dd * 4.0, 1.0)
+        metals_up = max((dbb - self.dbb_baseline) / max(self.dbb_baseline, 1e-9), 0.0)
+        metals_stress = min(metals_up * 5.0, 1.0)
+        usdt_base = float(self.active_params.get("USDT_BASELINE_MEDIAN", 15000.0))
+        if usdt_base > 0:
+            flow_up = max((usdt_median - usdt_base) / usdt_base, 0.0)
+            flow_stress = min(flow_up * 0.5, 1.0)
+        else:
+            flow_stress = 0.0
+        fiscal = max(float(self.active_params.get("FISCAL_PRESSURE", 0.2)), 0.0)
+        demo = float(self.active_params.get("DEMOGRAPHIC_SHRINKAGE", 0.0))
+        bio = float(self.active_params.get("BIOLOGICAL_BUFFER", 0.05))
+        blind = float(self.active_params.get("BASE_BLIND_SPOT", 0.10))
+        steep = float(self.active_params.get("SIGMOID_STEEPNESS", 1.2))
+        w = self.weights
+        core = (
+            smh_stress * float(w.get("w_smh", 0.38))
+            + metals_stress * float(w.get("w_metals", 0.28))
+            + flow_stress * float(w.get("w_flow", 0.18))
+            + fiscal * float(w.get("w_fiscal", 0.16))
+        )
+        financial = core * (1.0 + blind)
+        kinetic = kinetic_factor + demo * 0.25 - bio * 0.15
+        total = financial + max(kinetic, 0.0) * 0.8
+        total += (past_risk / 100.0) * 0.25
+        if self.cache_stale_cycles > 0:
+            total += round(0.15 * math.log(self.cache_stale_cycles + 1), 3)
+        risk = 1.0 / (1.0 + math.exp(-total * steep))
+        return round(risk * 100.0, 2), {
+            "smh_stress": round(smh_stress, 3),
+            "metals_stress": round(metals_stress, 3),
+            "flow_stress": round(flow_stress, 3),
+            "fiscal": round(fiscal, 3),
+            "core": round(core, 4),
+            "total_stress": round(total, 4),
+        }
+
+    def _write_csv(self, ts, country, risk, status, smh, dbb, usdt):
+        try:
+            exists = os.path.exists(self.csv_file)
+            with open(self.csv_file, "a", encoding="utf-8") as f:
+                if not exists:
+                    f.write("Timestamp,Country,Risk_Pct,Status,SMH,DBB,USDT_Median\n")
+                f.write(f"{ts},{country},{risk},{status},{smh},{dbb},{round(usdt, 2)}\n")
+        except Exception as e:
+            print(f"[WARN] CSV: {e}", file=sys.stderr)
+
+    async def execute_monitoring_cycle(self, country_code="US", past_risk=40.0, kinetic_factor=0.0, network_storm=False):
+        self._switch_country(country_code)
+        tasks = [
+            self._fetch_yahoo_last("SMH", self.smh_baseline),
+            self._fetch_yahoo_last("DBB", self.dbb_baseline),
+            self._fetch_tron_usdt() if not network_storm else asyncio.sleep(0, result=[]),
+        ]
+        try:
+            results = await asyncio.wait_for(asyncio.gather(*tasks, return_exceptions=True), timeout=12.0)
+
+            def unpack(x, default):
+                return default if isinstance(x, Exception) else x
+
+            smh_r = unpack(results[0], (self.smh_baseline, "SMH_FAIL"))
+            dbb_r = unpack(results[1], (self.dbb_baseline, "DBB_FAIL"))
+            txs = unpack(results[2], [])
+            smh, st_smh = smh_r if isinstance(smh_r, tuple) else (smh_r, "OK")
+            dbb, st_dbb = dbb_r if isinstance(dbb_r, tuple) else (dbb_r, "OK")
+            if isinstance(txs, list) and txs:
+                self.onchain_buffer.extend(txs)
+                self.cache_stale_cycles = 0
+                st_tron = f"TRON_OK(n={self.onchain_buffer.get_size()})"
+            else:
+                st_tron = "TRON_CACHE"
                 if self.onchain_buffer.get_size() == 0:
-                    status_onchain = "ONCHAIN_EMPTY_FIRST_TICK"
-                else:
-                    status_onchain = "STREAM_TICK_EMPTY_RELYING_ON_ROLLING_WINDOW"
-
-            use_dynamic = True
-            network_log = f"{status_b} | {status_m} | {status_onchain}"
-
+                    self.cache_stale_cycles += 1
+            usdt_med = self.onchain_buffer.get_rolling_median(
+                float(self.active_params.get("USDT_BASELINE_MEDIAN", 15000))
+            )
+            network_log = f"{st_smh} | {st_dbb} | {st_tron}"
         except Exception as e:
             self.cache_stale_cycles += 1
-            current_smh = self.active_params["SMH_50D_AVERAGE_NORM"]
-            current_dbb = self.active_params["DBB_50D_AVERAGE_NORM"]
-            use_dynamic = False
-            network_log = f"TIMEOUT_OR_ERROR | {type(e).__name__} | STALE={self.cache_stale_cycles}"
+            smh, dbb = self.smh_baseline, self.dbb_baseline
+            usdt_med = float(self.active_params.get("USDT_BASELINE_MEDIAN", 15000))
+            network_log = f"ERROR:{type(e).__name__}"
 
-        live_median_usdt = self.onchain_buffer.get_rolling_median(
-            self.active_params["HISTORICAL_MEDIAN_USDT"]
-        )
-
-        smh_avg = max(float(self.active_params["SMH_50D_AVERAGE_NORM"]), 1e-9)
-        dbb_avg = max(float(self.active_params["DBB_50D_AVERAGE_NORM"]), 1e-9)
-        base_usdt = max(float(self.active_params["HISTORICAL_MEDIAN_USDT"]), 1e-9)
-
-        try:
-            current_smh = float(current_smh)
-            current_dbb = float(current_dbb)
-        except (TypeError, ValueError):
-            current_smh = smh_avg
-            current_dbb = dbb_avg
-
-        baseline_smh = self.pre_crisis_smh if self.reference_mode == "pre_crisis" else smh_avg
-        baseline_dbb = self.pre_crisis_dbb if self.reference_mode == "pre_crisis" else dbb_avg
-
-        res_bubble = min(max((baseline_smh - current_smh) / baseline_smh * 5.0, 0.0), 1.0)
-        res_material = min(max((current_dbb - baseline_dbb) / baseline_dbb * 5.0, 0.0), 1.0)
-
-        deviation_usdt = (live_median_usdt - base_usdt) / base_usdt
-        res_crypto = min(max(0.12 + deviation_usdt * 0.25, 0.0), 0.40)
-
-        material_deficit = max((1.0 - res_material) - float(self.active_params["GARAGE_BUFFER"]), 0.0)
-        if material_deficit > 0.6:
-            material_deficit *= 2.0
-
-        fiscal_pressure = float(self.active_params["FISCAL_PRESSURE"])
-        base_blind_spot = float(self.active_params["BASE_BLIND_SPOT"])
-        demographic_shrinkage = float(self.active_params.get("DEMOGRAPHIC_SHRINKAGE", 0.0))
-        biological_buffer = float(self.active_params.get("BIOLOGICAL_BUFFER", 0.05))
-
-        total = res_bubble + material_deficit + res_crypto + fiscal_pressure
-        if total <= 0:
-            total = 1.0
-
-        if use_dynamic:
-            w_b = res_bubble / total
-            w_m = material_deficit / total
-            w_c = res_crypto / total
-            w_f = fiscal_pressure / total
-        else:
-            w_b, w_m, w_c, w_f = 0.25, 0.45, 0.15, 0.15
-
-        base_stress = (
-            (res_bubble * w_b) ** 2 +
-            (material_deficit * w_m) ** 2 +
-            (res_crypto * w_c) ** 2 +
-            (fiscal_pressure * w_f) ** 2
-        ) ** 0.5
-
-        financial = base_stress * (1.0 + base_blind_spot)
-        kinetic = kinetic_factor + (demographic_shrinkage * 0.45) - (biological_buffer * 0.30)
-        total_stress = financial + (kinetic * 1.2)
-        total_stress += (past_risk / 100.0) * 0.5
-        total_stress += self._calculate_visibility_penalty(self.cache_stale_cycles)
-
-        risk = 1.0 / (1.0 + math.exp(-total_stress * 2.5))
-        risk_pct = round(risk * 100.0, 2)
-        visibility = round(100.0 - risk_pct, 2)
-
-        alert_threshold = float(self.active_params.get("ALERT_THRESHOLD", 60.0))
-        if risk_pct >= alert_threshold:
-            status_level = "CRITICAL"
+        risk_pct, parts = self._compute_country_stress(float(smh), float(dbb), float(usdt_med), past_risk, kinetic_factor)
+        thr_c = float(self.active_params.get("ALERT_THRESHOLD", 70))
+        thr_e = float(self.active_params.get("ELEVATED_THRESHOLD", 55))
+        if risk_pct >= thr_c:
+            status = "CRITICAL"
             self.high_stress_duration += 1
-        elif risk_pct >= alert_threshold * 0.75:
-            status_level = "ELEVATED"
+        elif risk_pct >= thr_e:
+            status = "ELEVATED"
             self.high_stress_duration = 0
         else:
-            status_level = "NORMAL"
+            status = "NORMAL"
             self.high_stress_duration = 0
-
-        timestamp = datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
-        self._write_to_historical_csv(
-            timestamp, country_code, risk_pct, status_level,
-            current_smh, current_dbb, live_median_usdt
-        )
-
+        ts = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
+        self._write_csv(ts, country_code, risk_pct, status, smh, dbb, usdt_med)
         return {
-            "HEADER": "SOVEREIGN_STRESS_MONITOR_V25_6",
-            "TIMESTAMP": timestamp,
+            "HEADER": "SOVEREIGN_STRESS_MONITOR_V27",
+            "TIMESTAMP": ts,
             "COUNTRY": country_code,
             "RISK_PCT": risk_pct,
-            "VISIBILITY_PCT": visibility,
-            "STATUS": status_level,
+            "VISIBILITY_PCT": round(100.0 - risk_pct, 2),
+            "STATUS": status,
             "NETWORK_LOG": network_log,
+            "WEIGHTS": self.weights,
             "LIVE_METRICS": {
-                "smh_price": round(current_smh, 2),
-                "dbb_price": round(current_dbb, 2),
-                "usdt_rolling_median": round(live_median_usdt, 2),
-                "semiconductor_stress": round(res_bubble, 3),
-                "metals_stress": round(res_material, 3),
-                "crypto_component": round(res_crypto, 3),
-                "material_deficit": round(material_deficit, 3),
-                "fiscal_pressure": fiscal_pressure,
-                "stale_cycles": self.cache_stale_cycles,
-                "high_stress_duration": self.high_stress_duration
-            }
+                "smh_price": round(float(smh), 2),
+                "dbb_price": round(float(dbb), 2),
+                "usdt_median": round(float(usdt_med), 2),
+                **parts,
+            },
         }
 
 
 async def run_all():
-    engine = SovereignGlobalMonitorV25_6()
-    engine.onchain_buffer.extend([24000.0, 51000.0, 19000.0, 64000.0, 35000.0])
+    engine = SovereignGlobalMonitorV27()
+    engine.onchain_buffer.extend([8000, 12000, 15000, 9000, 11000])
+    print("=" * 78)
+    print("SSM v27 — COMBAT CORE + GLOBAL RADAR")
+    print("=" * 78)
 
-    print("=" * 72)
-    print("SOVEREIGN STRESS MONITOR v25.6 — GLOBAL PRODUCTION RUN")
-    print("=" * 72)
+    print("\n[1] GLOBAL RADAR...")
+    radar = await engine.build_global_radar()
+    print(f"    COMPOSITE: {radar['COMPOSITE_RISK_PCT']}%  STATUS={radar['STATUS']}")
+    print("    SLEEVES:", radar["SLEEVES"])
+    print("    TOP:", ", ".join(f"{x['symbol']} {x['stress_pct']}%" for x in radar["TOP_STRESS"][:5]))
 
+    print("\n[2] Country matrix...")
     countries = ["US", "UA", "DE", "GB", "CN", "PL", "RU", "IL"]
-    for country in countries:
-        print(f"\n--- Country: {country} ---")
-        try:
-            report = await engine.execute_monitoring_cycle(country_code=country, past_risk=55.0)
-            print(json.dumps(report, indent=2, ensure_ascii=False))
-        except Exception as e:
-            print(f"[ERROR] {country}: {type(e).__name__}: {e}")
-            traceback.print_exc()
+    country_reports = []
+    for c in countries:
+        rep = await engine.execute_monitoring_cycle(country_code=c, past_risk=40.0)
+        country_reports.append(rep)
+        print(f"    {c}: {rep['RISK_PCT']}%  {rep['STATUS']}")
 
-    print("\n" + "=" * 72)
-    print("NETWORK STORM TEST (TRON timeout simulation) — UA")
-    print("=" * 72)
-    try:
-        report_storm = await engine.execute_monitoring_cycle(
-            country_code="UA", past_risk=55.0, network_storm=True
-        )
-        print(json.dumps(report_storm, indent=2, ensure_ascii=False))
-    except Exception as e:
-        print(f"[ERROR] storm test: {e}")
-        traceback.print_exc()
-
-    print("\n[OK] SSM cycle finished. CSV:", engine.csv_file)
+    unified = {
+        "HEADER": "SSM_V27_UNIFIED_REPORT",
+        "TIMESTAMP_UTC": datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S"),
+        "GLOBAL_RADAR": {
+            "COMPOSITE_RISK_PCT": radar["COMPOSITE_RISK_PCT"],
+            "STATUS": radar["STATUS"],
+            "SLEEVES": radar["SLEEVES"],
+            "TOP_STRESS": radar["TOP_STRESS"],
+        },
+        "COUNTRIES": [
+            {
+                "COUNTRY": r["COUNTRY"],
+                "RISK_PCT": r["RISK_PCT"],
+                "STATUS": r["STATUS"],
+                "smh": r["LIVE_METRICS"]["smh_price"],
+                "dbb": r["LIVE_METRICS"]["dbb_price"],
+                "usdt_median": r["LIVE_METRICS"]["usdt_median"],
+            }
+            for r in country_reports
+        ],
+        "WEIGHTS": engine.weights,
+    }
+    print("\n" + "=" * 78)
+    print("UNIFIED REPORT")
+    print("=" * 78)
+    print(json.dumps(unified, indent=2, ensure_ascii=False))
+    out = os.path.join(os.path.dirname(os.path.abspath(__file__)) or ".", "ssm_unified_report.json")
+    with open(out, "w", encoding="utf-8") as f:
+        json.dump(unified, f, indent=2, ensure_ascii=False)
+    print(f"\n[OK] saved {out}")
     if os.path.exists(engine.csv_file):
-        print(f"[OK] CSV size: {os.path.getsize(engine.csv_file)} bytes")
+        print(f"[OK] csv {engine.csv_file} ({os.path.getsize(engine.csv_file)} bytes)")
 
 
 def main():
