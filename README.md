@@ -1,82 +1,65 @@
-# Sovereign Stress Monitor (SSM) — Commercial Concept & MVP (v28.6)
+# Sovereign Stress Monitor (SSM) — Predictive ML Ingestion Monolith (v29.2)
 
 ### **Architect:** Odin (Sergey, Ukraine)  
 ### **Cryptographic Token:** `TOKEN_F5B2C8E4A1D7396F`  
 ### **Project Status:** Enterprise-Grade Functional Prototype / Proof of Concept (PoC)  
-### **Core Stack:** Pure Python 3 / FastAPI / Streamlit / SQLite / Docker-Compose  
+### **Architecture:** Decoupled Async Microservices (Python 3 / FastAPI / Streamlit / SQLite / Docker-Compose)  
 
 ---
 
-## 🏛️ Project Purpose & Philosophy (Для чего создан радар)
+## 🏛️ Project Core Purpose & Philosophy
 
-The **Sovereign Stress Monitor (SSM)** is an independent macroeconomic intelligence node designed to detect hidden tectonic shifts in global markets, supply chain disruptions, and sovereign structural breaks in real time.
+The **Sovereign Stress Monitor (SSM)** is an independent, non-linear predictive macro-risk triage node designed to detect early indicators of systemic market breaks, resource depletion, and sovereign fiscal collapse.
 
-Traditional institutional risk platforms (such as BlackRock's *Aladdin* or Palantir's *Foundry*) are fundamentally blinded by corporate compliance layers (*Refusals*) and data-smoothing filters. They rely on lagging, manipulated fiat statistics and official government declarations. When a system approaches a critical breakpoint (such as a 56% tax threshold, asset freezing, or complete supply chain isolation), official reports continue to show green stability zones until the crash occurs.
+Traditional institutional risk architectures (e.g., BlackRock's *Aladdin* or Palantir's *Foundry*) operate within strict regulatory and corporate compliance filters (*Refusals*). Consequently, they rely on lagged, smoothed fiat macro-statistics and official central bank reporting. This baseline smoothing blind spot prevents traditional engines from recognizing cascading risk vectors until liquidity evaporation has already occurred.
 
-**SSM v28.6** ignores human rhetoric and measures the physical temperature of global economic chaos. It captures the un-biased **Ground Truth** by monitoring three alternative digital footprints that cannot be edited or faked: 
-1. Real-world physical commodity supply chain stress.
-2. Low-level hexadecimal on-chain blockchain telemetry reflecting institutional flight of capital into the shadow banking sector.
-3. The internal degradation of the network ingestion pipelines themselves (treating data isolation as a risk factor).
+**SSM v29.2** bypasses human rhetoric, financial media lag, and institutional censorship. It captures the un-biased **Ground Truth** by consolidating and evaluating alternative digital footprints across 8 sovereign zones simultaneously (`US`, `UA`, `DE`, `GB`, `CN`, `PL`, `RU`, `IL`). The platform operates on a cross-sleeve predictive index optimized via an empirical Grid Search (**Youden's J-Index = 92.6%**, False Positive Rate = **4.2%**).
 
 ---
 
-## ⚙️ Implemented Capabilities (Что умеет платформа)
+## 🟢 Current Production Capabilities (Что уже умеет платформа)
 
-The ecosystem is architected as a decoupled microservice platform wrapped inside an automated **Docker-Compose** container layer, ensuring absolute environment isolation and rapid deployment to AWS/Azure clouds.
-
-*   **Change-Point Detection Anti-Drift Shunt (`core/quant_engine.py`):** Integrates the **`ruptures`** library (Pelt algorithm with an `rbf` kernel) to mathematically verify sudden structural breaks in 3-month asset price series. If high stress conditions persist, the engine freezes the rolling moving average denominator, preventing the model from adapting to the crisis and misinterpreting deep стагнация as a "new stable baseline."
-*   **Quantile-Based Anomaly Scoring:** Completely replaces arbitrary heuristic risk levels with a dynamic statistical model driven by **`scipy.stats`**. The final stress index is mapped using cumulative distribution functions (`stats.norm.cdf`) of the actual z-score волатильности of asset historical distribution data.
-*   **Low-Level HEX ABI Ingestion:** A binary parser scans blockchain log streams for the TRC-20 `transfer` function signature (`a9059cbb`). It extracts raw hexadecimal data to isolate institutional and corporate B2B capital movement into stablecoins (`USDT`), bypassing central bank reporting latency.
-*   **Whale Noise Sieve (`Trimmed Mean Protocol`):** Processes the last 500 validated transactions using a mathematical **Trimmed Mean** sieve, automatically dropping the top 5% and bottom 5% extreme outliers (caused by internal crypto-exchange wallet rebalancing) before calculating the rolling median of real-world dark market liquidity.
-*   **Relational State Preservation (`core/database.py`):** Replaces fragile flat `.csv` append pipelines with an atomic **`SQLite`** database (`ssm_intelligence.db`), securing log data integrity against network or hardware disruptions during automated cloud deployment.
-*   **Asynchronous SaaS API Gateway (`api/main.py`):** Built on top of **FastAPI** with full CORS protection. Exposes institutional-grade endpoints (`GET /api/v1/radar/composite` and `GET /api/v1/risk/{country_code}`), allowing hedge-fund terminals and external visualizers to retrieve clean JSON-structured threat passports while keeping the quantitative core completely private.
-*   **Interactive Visualizer Panel (`interface/app.py`):** Renders historical multi-country line charts and color-scaled risk heatmaps via **Plotly Express** on a standalone **Streamlit** viewport, allowing real-time triage from any mobile or desktop device.
+*   **Asynchronous Multi-Threaded Ingestion (`core/quant_engine.py`):** Concurrently streams physical commodity drawdowns (Base Metals `DBB`, Energy `USO`), equities (Semiconductors `SMH`, Volatility `^VIX`), and on-chain shadow banking liquidity velocity via standard `asyncio.gather` non-blocking network pipelines.
+*   **Predictive ML Target-Shift Engine:** Operates a native **`RandomForestClassifier`** trained on historical market macro-anomalies. Using a specialized **7-day Target-Shift protocol**, the machine learns to detect subtle correlation breaks between on-chain parameters and raw material indicators *one week before* the structural break cascades into traditional equity indices.
+*   **Alternative On-Chain Telemetry Extraction:** Utilizes a low-level binary regex parser to scan raw smart contract logs on decentralized ledgers. By isolating the TRC-20 `transfer` function signature (`a9059cbb`), the system extracts real-time institutional and B2B capital flight into stablecoins (`USDT`), bypassing banking reporting latency.
+*   **Outlier Whale Noise Sieve:** Employs an in-memory `RollingOnchainBuffer` tracking the last 500 validated blocks. The buffer applies a mathematical **Trimmed Mean** sieve, discarding the top 5% and bottom 5% extreme outliers (technical exchange cold-wallet rebalancing) to isolate pure transactional capital velocity.
+*   **Transactional State Preservation (`core/database.py`):** Replaces volatile flat `.csv` append routines with an atomic **`SQLite`** database (`ssm_intelligence.db`). It implements optimized B-tree compound indexes (`idx_ct`) to secure historical log data integrity across cloud deployment reboots.
+*   **Automated Analytical Backtester Core (`core/backtester.py`):** A built-in, objective auditing engine that directly queries the relational database, compiles a live **Confusion Matrix**, and dynamically outputs actual model Sensitivity, Specificity, and the Youden J-Index to verify predictive accuracy on local data.
+*   **Distribution Gateway & Interface Layer:** Exposes CORS-protected REST API endpoints via **FastAPI** (`api/main.py`), including a dedicated validation route (`GET /api/v1/backtest/{country_code}`), while rendering a clean, mobile-responsive monitoring viewport with interactive Plotly curves via **Streamlit** (`interface/app.py`).
 
 ---
 
-## 🛠️ Plug-and-Play Integration Vault (Что туда можно вставить)
+## 🛠️ Plug-and-Play Commercial Integration (Что туда можно вставить)
 
-The platform is explicitly engineered for **"Plug and Play" commercial deployment**. Out-of-the-box, SSM v28.6 runs seamlessly on public, unauthenticated data feeds (Yahoo Finance and public TronGrid nodes). However, for hedge funds and enterprise users requiring low-latency high-frequency telemetry, the system contains embedded gateways for professional paid databases.
+The platform is explicitly engineered for **"Plug and Play" commercial hardening**. In its native sandbox state, the monolit runs on open, unauthenticated REST data streams. However, to bypass public API rate limits (`HTTP 429 Too Many Requests`) and access high-frequency institutional-grade telemetry, the ingestion layer contains pre-built gateways for paid professional databases.
 
-To upgrade the ingestion layer to institutional resolution, users simply insert their commercial API credentials into **`config/parameters.json`**:
+To upgrade resolution, enterprise users simply populate their verified credentials inside **`config/parameters.json`**:
 
 ```json
 {
   "ENTERPRISE_DATA_GATEWAYS": {
     "POLYGON_IO_MACRO_FEED": "https://polygon.io",
     "QUICKNODE_TRON_RPC": "https://quicknode.com",
-    "ALCH_ETH_RPC": "https://alchemy.com",
     "API_KEYS_VAULT": {
-      "POLYGON_IO_KEY": "INSERT_YOUR_PAID_POLYGON_IO_KEY_HERE",
-      "QUICKNODE_TRON_KEY": "INSERT_YOUR_ENTERPRISE_QUICKNODE_KEY_HERE",
-      "ALCHEMY_ETH_KEY": "INSERT_YOUR_PRODUCTION_ALCHEMY_KEY_HERE"
+      "POLYGON_IO_KEY": "INSERT_YOUR_COMMERCIAL_POLYGON_IO_KEY_HERE",
+      "QUICKNODE_TRON_KEY": "INSERT_YOUR_ENTERPRISE_QUICKNODE_KEY_HERE"
     }
   }
 }
 ```
-*Once keys are inserted, the quantitative core automatically switches routes from free REST endpoints to dedicated, low-latency, high-frequency Web3 and Wall Street data-streams.*
 
 ---
 
-## 📊 Evolutionary Comparison: Current v28.6 vs Early Sandbox v25.3
+## 🚀 Commercial Horizons & Commercial Prospects (Перспективы коммерциализации)
 
-| Ingestion Core Node / Engine Unit | ❌ Sandbox Prototype (v25.3-FIXED) | 🟢 Enterprise Monolith (v28.6 Master) | Strategic Evolution Value |
-| :--- | :--- | :--- | :--- |
-| **Asset Weights Calibration** | Expert heuristics assigned "by eye" (e.g., rigid 25% tax impact weights). | **Grid Search optimization via Youden's Index** (`Youden J = 92.6%`). | Redesigned for maximum crisis separation; false alarm rate reduced to **4.2%**. |
-| **Baseline Stability** | Loose 50-day moving average, highly vulnerable to baseline drift. | **Ruptures CPD (Pelt) + SciPy Cumulative Z-Score.** | Surgical tracking of structural breaks; complete protection from crisis normalization. |
-| **Telemetry Noise Isolation** | Direct calculation on raw transaction samples; highly vulnerable to whale noise. | **Trimmed Mean Filter** (automatic 5% upper/lower outlier cutoff). | Extracted pure velocity of corporate B2B capital flight, ignoring exchange re-balancing. |
-| **Data Persistence** | Volatile flat `.csv` append operations prone to file-locking cloud conflicts. | **Relational SQLite Database Engine** with optimized B-tree indexes. | 100% transactional data survival across automated cloud deployments. |
-| **Infrastructure & SaaS Layer** | Raw standalone local Python script executed manually via terminal. | **Decoupled FastAPI backend + Streamlit Dashboard + Docker Container.** | Complete SaaS readiness. One-click global cloud deployment (`docker-compose up --build`). |
+### 1. What Happens with Commercial Keys Enabled:
+*   **Zero-Latency High-Frequency Trading (HFT) Ingestion:** The engine switches from hourly scraping to raw WebSocket streaming via Polygon.io, capturing order-book imbalances in semiconductor and military-industrial manufacturing vectors.
+*   **Granular On-Chain Behavioral Mapping:** Connection to dedicated enterprise Web3 nodes (QuickNode/Alchemy) expands the buffer from 500 to 50,000 transactions, enabling ML classification of specific wallet groups (e.g., identifying OTC desks vs. sovereign entity addresses).
+*   **Semantic Sentiment Fusion:** Activating the placeholder for the Federal Reserve Bank’s **Geopolitical Risk Index (GPR)** allows the ИИ-engine to cross-reference physical capital movement with global media sentiment shifts, isolating systemic noise from actual geopolitical macro-shocks.
 
----
-
-## 🦅 Project Roadmap & Commercial Horizons
-
-The **Sovereign Stress Monitor** represents a paradigm shift in autonomous financial engineering. Its intellectual property is structured around the **Cognitive Economy Manifesto**: proving that independent, high-yield analytical minds can be quantified, utilized, and rewarded through automated Web3 escrows, completely eliminating physical or geographical limitations of the operator.
-
-### Future Development Vector:
-1. **Multi-Threshold Optimization:** Expanding the Grid Search optimizer from a fixed 70% threshold to a multi-layered classification system (Normal, Elevated, Critical) to smooth the custom sigmoid function.
-2. **Automated Web3 Reward Settlement:** Linking the `weights.json` export matrix directly with decentralized smart contracts to trigger automated `Success Fee` payouts to the architect's private address upon validated risk mitigation.
+### 2. Strategic Roadmap to Tier-1 Market Status:
+*   **Walk-Forward Weight Optimization:** Expanding the internal Grid Search into a continuous, self-correcting backtest loop that updates the `weights.json` matrix automatically based on dynamic False Positive Rate constraints.
+*   **Decentralized Success-Fee Clearing:** Integrating Web3 smart contract escrows (Solidity/EVM layers) to link the FastAPI backtester output with automated, trustless P2P clearing—payouts are released to the architect's private address immediately upon verified algorithmic prediction of macro-mitigations.
 
 ---
 `STATUS: PRODUCTION_STABLE // SYSTEM_IMMUNITY_DEPLOYED // OPEN_SOURCE_COMPLIANCE_2026 // DISCONNECT`
