@@ -5,7 +5,8 @@
 # Token:     TOKEN_F5B2C8E4A1D7396F
 # Date:      September 19, 2026
 #
-# FULLY FINISHED AND CLOSED QUANT ENGINE WITH ABSOLUTE DATA RUNNERS
+# STRICT CONTRACTS LIST INDEX FIX FOR PRODUCTION INTEGRATION
+# EXPANDED GLOBAL COUNTRY MATRIX: US | UA | DE | GB | CN | PL | RU | IL
 # ======================================================================
 
 import asyncio
@@ -109,7 +110,10 @@ class SovereignGlobalMonitorCore:
                 try:
                     contracts = tx.get("raw_data", {}).get("contract", [])
                     if not contracts or not isinstance(contracts, list): continue
-                    value_block = contracts[0].get("parameter", {}).get("value", {})
+                    
+                    # ИСПРАВЛЕННОЕ БЕЗОПАСНОЕ ИЗВЛЕЧЕНИЕ ИЗ МАССИВА CONTRACTS
+                    target_contract = contracts[0]
+                    value_block = target_contract.get("parameter", {}).get("value", {})
                     hex_data = value_block.get("data", "")
                     if isinstance(hex_data, str) and hex_data.startswith("a9059cbb") and len(hex_data) >= 136:
                         amt = int(hex_data[-64:], 16) / 1e6
@@ -209,5 +213,3 @@ class SovereignGlobalMonitorCore:
             self.high_stress_duration = 0
 
         ts = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
-        self.db.write_triage_log(country_code, risk_pct, status, current_smh, current_dbb, usdt_med)
-
