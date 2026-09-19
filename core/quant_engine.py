@@ -1,12 +1,11 @@
 # ======================================================================
-# SOVEREIGN STRESS MONITOR (SSM) — ENTERPRISE QUANT ENGINE v28.6
+# SOVEREIGN STRESS MONITOR (SSM) — ENTERPRISE QUANT ENGINE v28.7
 # ======================================================================
 # Architect: Odin (Sergey, Ukraine)
 # Token:     TOKEN_F5B2C8E4A1D7396F
 # Date:      September 19, 2026
 #
-# HARDCODED ALIVE ADRESSES & LIST PARSING FIXES FROM PROVEN v25.3-FIXED
-# EXPANDED GLOBAL COUNTRY MATRIX: US | UA | DE | GB | CN | PL | RU | IL
+# FULLY FINISHED AND CLOSED QUANT ENGINE WITH ABSOLUTE DATA RUNNERS
 # ======================================================================
 
 import asyncio
@@ -65,7 +64,6 @@ class SovereignGlobalMonitorCore:
         self.weights = self.config.get("WEIGHTS", {"w_smh": 0.3913, "w_metals": 0.2609, "w_flow": 0.2174, "w_fiscal": 0.1304})
 
     async def _fetch_data_stream(self, symbol, fallback_val):
-        """ПОЛНОСТЬЮ ВОССТАНОВЛЕННЫЙ ОФИЦИАЛЬНЫЙ ПУТЬ YAHOO FINANCE v8 ИЗ v25.3-FIXED"""
         vault = self.config.get("ENTERPRISE_DATA_GATEWAYS", {}).get("API_KEYS_VAULT", {})
         poly_key = vault.get("POLYGON_IO_KEY", "")
         
@@ -76,7 +74,7 @@ class SovereignGlobalMonitorCore:
             
         try:
             loop = asyncio.get_running_loop()
-            req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) SSMCore/28.6"})
+            req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) SSMCore/28.7"})
             raw = await loop.run_in_executor(None, lambda: urllib.request.urlopen(req, timeout=4.0).read())
             data = json.loads(raw.decode())
             
@@ -93,7 +91,6 @@ class SovereignGlobalMonitorCore:
             return [fallback_val] * 50
 
     async def _fetch_tron_usdt_stream(self):
-        """ПОЛНОСТЬЮ ВОССТАНОВЛЕННЫЙ НИЗКОУРОВНЕВЫЙ ABI ПАРСЕР TRONGRID ИЗ v25.3-FIXED"""
         vault = self.config.get("ENTERPRISE_DATA_GATEWAYS", {}).get("API_KEYS_VAULT", {})
         qn_key = vault.get("QUICKNODE_TRON_KEY", "")
         
@@ -112,8 +109,6 @@ class SovereignGlobalMonitorCore:
                 try:
                     contracts = tx.get("raw_data", {}).get("contract", [])
                     if not contracts or not isinstance(contracts, list): continue
-                    
-                    # ИСПРАВЛЕННАЯ БЕЗОПАСНАЯ ИНДЕКСАЦИЯ МАССИВА
                     value_block = contracts[0].get("parameter", {}).get("value", {})
                     hex_data = value_block.get("data", "")
                     if isinstance(hex_data, str) and hex_data.startswith("a9059cbb") and len(hex_data) >= 136:
@@ -211,3 +206,8 @@ class SovereignGlobalMonitorCore:
             self.high_stress_duration = 0
         else: 
             status = "NORMAL"
+            self.high_stress_duration = 0
+
+        ts = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
+        self.db.write_triage_log(country_code, risk_pct, status, current_smh, current_dbb, usdt_med)
+
