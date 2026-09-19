@@ -1,24 +1,39 @@
-async def main():
-    engine = SovereignGlobalMonitorV25_3() # Инициализация вашего стабилизированного ядра
+# ======================================================================
+# SOVEREIGN STRESS MONITOR (SSM) — AUTOMATED DATA INGESTION WORKFLOW
+# ======================================================================
+# Architect: Odin (Sergey, Ukraine)
+# Token:     TOKEN_F5B2C8E4A1D7396F
+# Version:   2.1 (Production Master Build)
+# ======================================================================
 
-    print("=" * 72)
-    print("🦅 SOVEREIGN STRESS MONITOR v25.7 — GLOBAL PRODUCTION RUN")
-    print("=" * 72)
-    
-    # Наполняем кольцевой буфер первичным пулом транзакций
-    engine.onchain_buffer.extend([24000.0, 51000.0, 19000.0, 64000.0, 35000.0])
+name: SSM Automated Macro Mining
 
-    # Сквозной последовательный расчет абсолютно всех 8 стран глобальной матрицы (Поправка Сергея)
-    for country in ["US", "UA", "DE", "GB", "CN", "PL", "RU", "IL"]:
-        print(f"\n--- Вычисление регионального контура: {country} ---")
-        report = await engine.execute_monitoring_cycle(country_code=country, past_risk=55.0)
-        print(json.dumps(report, indent=2, ensure_ascii=False))
+on:
+  schedule:
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
 
-    print("\n" + "=" * 72)
-    print("📡 ТЕСТ АВАРИЙНОГО РЕЖИМА: Симуляция сетевого шторма (TRON Timeout)")
-    print("=" * 72)
-    report_storm = await engine.execute_monitoring_cycle(country_code="UA", past_risk=55.0, network_storm=True)
-    print(json.dumps(report_storm, indent=2, ensure_ascii=False))
+jobs:
+  run-triage:
+    runs-on: ubuntu-latest
 
-if __name__ == "__main__":
-    asyncio.run(main())
+    steps:
+    - name: Ingesting Repository Architecture
+      uses: actions/checkout@v4
+
+    - name: Initializing Pure Python Environment
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Executing Sovereign Master Ingestion
+      run: |
+        python ssm_core.py
+
+    - name: Archiving and Preserving Historical Database
+      uses: actions/upload-artifact@v4
+      with:
+        name: ssm_live_database_package
+        path: |
+          **/ssm_historical_database.csv
+        retention-days: 90
