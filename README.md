@@ -1,4 +1,4 @@
-# Sovereign Stress Monitor (SSM) v30.5
+# Sovereign Stress Monitor (SSM) v30.5.1
 
 **Hybrid early-warning radar for economic and structural stress**
 
