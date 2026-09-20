@@ -1,23 +1,38 @@
-# SSM v30.5 — Hybrid Official + Ground Radar
+# Sovereign Stress Monitor (SSM) v30.5
 
-**See official and ground side by side. See the gap. Hear the alarm.**
+**Hybrid early-warning radar for economic and structural stress**
 
-| Layer | What |
-|-------|------|
-| **OFFICIAL (G)** | Market regime — SMH, DBB, USDT flows |
-| **STRUCTURAL (S)** | Fiscal / demographic / buffer priors (versioned) |
-| **GROUND (5)** | conflict · food · migration · mortality · physical |
-| **GAP** | `max(S, ground) − G` — calm markets vs hot land |
-| **ALARMS** | `SILENT_STRESS`, `GROUND_DIVERGENCE`, `NARRATIVE_LAG`, … |
+SSM is a research-grade monitoring stack that places **official/market observables** next to **structural priors** and **five ground-level proxies**, then surfaces the **gap** between them. It is built for environments where reported digital/cash-register activity is an incomplete picture of real conditions on the ground.
 
-Ground feeds use **LOCAL_PRIORS baselines** always; when you paste keys in `config/parameters.json` → `API_KEYS_VAULT` (Polygon, QuickNode, ACLED, …) live quality upgrades automatically.
+> **Not investment advice.** Scores are intensities and regime labels, not calibrated default probabilities or forecasts of asset returns.
 
-```bash
-pip install -r requirements.txt
-pytest -q
-python ssm_core.py
-uvicorn api.main:app --port 8000
-streamlit run interface/app.py --server.port 8501
-```
+---
 
-Not investment advice. Proxies ≠ full informal-economy census.
+## 1. Problem statement
+
+Institutional and media narratives often lean on **what is easy to measure**: listed markets, formal payrolls, tax cash registers, quarterly filings. Large parts of real activity—cash, informal labor, wartime disruption, demographic drain, parallel FX—leave weaker or delayed traces in those feeds.
+
+When the visible slice looks stable while physical and social stress accumulates, conventional dashboards can stay green. Operators on the ground experience the opposite.
+
+SSM does not claim to “see the whole informal economy.” It claims something narrower and testable:
+
+1. **Always show the official/market layer and the alternative layer side by side.**
+2. **Treat chronic structural load as first-class**, not something that should be washed out by a calm equity tape.
+3. **Raise named alarms when the gap is large**, instead of collapsing everything into a single vanity percentage.
+
+---
+
+## 2. Architecture (three layers + comparison)
+
+```text
+┌─────────────────────────────────────────────────────────────┐
+│  DISPLAY R  ≈  max(G, S)  +  small lift from ground excess  │
+├──────────────────┬──────────────────┬───────────────────────┤
+│  OFFICIAL  G     │  STRUCTURAL  S   │  GROUND  (5 signals)  │
+│  market regime   │  fiscal/demo/    │  conflict · food ·    │
+│  SMH / DBB /     │  buffer priors   │  migration · mortality│
+│  USDT flows      │  (versioned)     │  · physical           │
+├──────────────────┴──────────────────┴───────────────────────┤
+│  GAP = max(S, GROUND) − G                                   │
+│  ALARMS = named codes when official calm ≠ land/structural  │
+└─────────────────────────────────────────────────────────────┘
