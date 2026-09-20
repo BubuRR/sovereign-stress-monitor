@@ -1,0 +1,166 @@
+{
+  "VERSION": "30.5",
+  "GLOBAL_DEFAULTS": {
+    "ALERT_THRESHOLD": 70.0,
+    "ELEVATED_THRESHOLD": 55.0,
+    "CHRONIC_CRITICAL_S": 0.75,
+    "CHRONIC_WATCH_S": 0.45,
+    "GAP_ALARM_THRESHOLD": 0.25,
+    "SIGMOID_STEEPNESS": 1.2,
+    "STRUCTURAL_LAMBDA": 2.5,
+    "SMH_50D_AVERAGE_NORM": 550.0,
+    "DBB_50D_AVERAGE_NORM": 25.0,
+    "BASE_BLIND_SPOT": 0.10,
+    "ASSUMED_DIGITAL_COVERAGE": 0.45
+  },
+  "WEIGHTS": {
+    "w_smh": 0.35,
+    "w_metals": 0.25,
+    "w_flow": 0.20,
+    "w_stale": 0.10,
+    "w_ground": 0.10
+  },
+  "STRUCTURAL_MIX": {
+    "alpha_fiscal": 0.50,
+    "beta_demographic": 0.35,
+    "gamma_buffer": 0.15
+  },
+  "COMPOSITE_MODE": "max",
+  "GROUND_SIGNALS": {
+    "conflict": {
+      "enabled": true,
+      "weight": 0.25,
+      "description": "Armed conflict / violence intensity (proxy)"
+    },
+    "food": {
+      "enabled": true,
+      "weight": 0.20,
+      "description": "Food price stress (FAO / proxy)"
+    },
+    "migration": {
+      "enabled": true,
+      "weight": 0.20,
+      "description": "Displacement / migration pressure (proxy)"
+    },
+    "mortality": {
+      "enabled": true,
+      "weight": 0.15,
+      "description": "Excess mortality / health stress (proxy)"
+    },
+    "physical": {
+      "enabled": true,
+      "weight": 0.20,
+      "description": "Disasters / physical disruption (proxy)"
+    }
+  },
+  "ENTERPRISE_DATA_GATEWAYS": {
+    "POLYGON_IO_MACRO_FEED": "https://api.polygon.io",
+    "QUICKNODE_TRON_RPC": "https://YOUR_QUICKNODE_ENDPOINT",
+    "ACLED_API": "https://api.acleddata.com",
+    "API_KEYS_VAULT": {
+      "POLYGON_IO_KEY": "PASTE_YOUR_COMMERCIAL_POLYGON_IO_KEY_HERE",
+      "QUICKNODE_TRON_KEY": "PASTE_YOUR_ENTERPRISE_QUICKNODE_KEY_HERE",
+      "ACLED_EMAIL": "PASTE_ACLED_EMAIL_HERE",
+      "ACLED_KEY": "PASTE_ACLED_PASSWORD_OR_KEY_HERE",
+      "FRED_API_KEY": "PASTE_FRED_KEY_OPTIONAL"
+    }
+  },
+  "LOCAL_PRIORS": {
+    "US": {
+      "fiscal_pressure": 0.35,
+      "demographic_squeeze": 0.01,
+      "buffer_gap": 0.02,
+      "historical_median_usdt": 50000.0,
+      "conflict_base": 0.05,
+      "food_base": 0.10,
+      "migration_base": 0.05,
+      "mortality_base": 0.08,
+      "physical_base": 0.10,
+      "note": "Expert prior — not P(default)"
+    },
+    "UA": {
+      "fiscal_pressure": 0.515,
+      "demographic_squeeze": 0.28,
+      "buffer_gap": 0.15,
+      "historical_median_usdt": 5000.0,
+      "conflict_base": 0.85,
+      "food_base": 0.45,
+      "migration_base": 0.75,
+      "mortality_base": 0.55,
+      "physical_base": 0.50,
+      "note": "Expert prior + wartime ground load — not calibrated default probability"
+    },
+    "DE": {
+      "fiscal_pressure": 0.45,
+      "demographic_squeeze": 0.04,
+      "buffer_gap": 0.05,
+      "historical_median_usdt": 15000.0,
+      "conflict_base": 0.05,
+      "food_base": 0.15,
+      "migration_base": 0.25,
+      "mortality_base": 0.10,
+      "physical_base": 0.10,
+      "note": "Expert prior — not P(default)"
+    },
+    "GB": {
+      "fiscal_pressure": 0.43,
+      "demographic_squeeze": 0.03,
+      "buffer_gap": 0.04,
+      "historical_median_usdt": 25000.0,
+      "conflict_base": 0.05,
+      "food_base": 0.18,
+      "migration_base": 0.20,
+      "mortality_base": 0.12,
+      "physical_base": 0.12,
+      "note": "Expert prior — not P(default)"
+    },
+    "CN": {
+      "fiscal_pressure": 0.28,
+      "demographic_squeeze": 0.08,
+      "buffer_gap": 0.02,
+      "historical_median_usdt": 95000.0,
+      "conflict_base": 0.10,
+      "food_base": 0.20,
+      "migration_base": 0.15,
+      "mortality_base": 0.15,
+      "physical_base": 0.25,
+      "note": "Expert prior — not P(default)"
+    },
+    "PL": {
+      "fiscal_pressure": 0.41,
+      "demographic_squeeze": 0.06,
+      "buffer_gap": 0.10,
+      "historical_median_usdt": 12000.0,
+      "conflict_base": 0.08,
+      "food_base": 0.20,
+      "migration_base": 0.40,
+      "mortality_base": 0.12,
+      "physical_base": 0.12,
+      "note": "Expert prior — not P(default)"
+    },
+    "RU": {
+      "fiscal_pressure": 0.38,
+      "demographic_squeeze": 0.18,
+      "buffer_gap": 0.22,
+      "historical_median_usdt": 65000.0,
+      "conflict_base": 0.70,
+      "food_base": 0.35,
+      "migration_base": 0.35,
+      "mortality_base": 0.40,
+      "physical_base": 0.30,
+      "note": "Expert prior — not P(default)"
+    },
+    "IL": {
+      "fiscal_pressure": 0.46,
+      "demographic_squeeze": 0.12,
+      "buffer_gap": 0.08,
+      "historical_median_usdt": 20000.0,
+      "conflict_base": 0.65,
+      "food_base": 0.25,
+      "migration_base": 0.30,
+      "mortality_base": 0.25,
+      "physical_base": 0.35,
+      "note": "Expert prior — not P(default)"
+    }
+  }
+}
