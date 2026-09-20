@@ -1,8 +1,12 @@
 # ======================================================================
-# SSM — Regime / stress engine v30.0 (honest MVP)
+# SSM v30.5 — Hybrid dual-layer + 5 ground signals + gap / alarm
 # ======================================================================
-# Focus: structural-break aware composite from public market + on-chain
-# signals. Not a sovereign AI oracle. Not a substitute for Aladdin.
+# OFFICIAL / MARKET  → G
+# STRUCTURAL PRIORS  → S
+# GROUND (земли)     → five signals → GROUND_INDEX
+# GAP                → when official calm but ground/structural hot
+# ALARM_CODES        → named sirens (radar + signaling)
+# Paid keys in config → richer feeds; free path always works via priors
 # ======================================================================
 
 import asyncio
@@ -14,14 +18,17 @@ import os
 import sys
 import traceback
 import numpy as np
+
 try:
     import ruptures as rpt
     HAS_RUPTURES = True
 except ImportError:
     rpt = None
     HAS_RUPTURES = False
+
 import scipy.stats as stats
 from core.database import SovereignStressDB
+from core.ground_feeds import GroundSignalEngine
 
 
 class RollingOnchainBuffer:
@@ -29,360 +36,405 @@ class RollingOnchainBuffer:
         self.max_size = max_size
         self.buffer = []
 
-    def extend(self, new_values):
-        self.buffer.extend(new_values)
+    def extend(self, values):
+        self.buffer.extend(values)
         if len(self.buffer) > self.max_size:
-            self.buffer = self.buffer[-self.max_size:]
+            self.buffer = self.buffer[-self.max_size :]
 
-    def get_trimmed_rolling_median(self, default_value):
+    def trimmed_median(self, default):
         if not self.buffer:
-            return default_value
+            return default
         s = sorted(self.buffer)
-        cutoff = max(1, int(len(s) * 0.05))
+        c = max(1, int(len(s) * 0.05))
         if len(s) > 20:
-            s = s[cutoff:-cutoff]
+            s = s[c:-c]
         n = len(s)
-        if n % 2 == 1:
-            return s[n // 2]
-        return (s[n // 2 - 1] + s[n // 2]) / 2.0
+        return s[n // 2] if n % 2 else (s[n // 2 - 1] + s[n // 2]) / 2.0
 
-    def get_size(self):
+    def size(self):
         return len(self.buffer)
 
 
 class SovereignGlobalMonitorCore:
     def __init__(self, config_path="config/parameters.json"):
-        root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        self.config_path = os.path.join(root, config_path)
-        self.cache_stale_cycles = 0
-        self.high_stress_duration = {}  # per country
-        self.reference_mode = "normal"
-        self.pre_crisis_smh = 550.0
-        self.pre_crisis_dbb = 25.0
-
-        self.db = SovereignStressDB()
-        self.onchain_buffer = RollingOnchainBuffer(max_size=500)
-
-        with open(self.config_path, "r", encoding="utf-8") as f:
+        self.root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        path = os.path.join(self.root, config_path)
+        with open(path, "r", encoding="utf-8") as f:
             self.config = json.load(f)
-        self.weights = self.config.get(
-            "WEIGHTS",
-            {"w_smh": 0.40, "w_metals": 0.30, "w_flow": 0.20, "w_fiscal": 0.10},
+
+        self.defaults = self.config["GLOBAL_DEFAULTS"]
+        self.weights = self.config.get("WEIGHTS", {})
+        self.mix = self.config.get(
+            "STRUCTURAL_MIX",
+            {"alpha_fiscal": 0.5, "beta_demographic": 0.35, "gamma_buffer": 0.15},
         )
+        self.composite_mode = self.config.get("COMPOSITE_MODE", "max")
+        self.priors = self.config.get("LOCAL_PRIORS", {})
+        self.db = SovereignStressDB()
+        self.onchain = RollingOnchainBuffer(500)
+        self.ground = GroundSignalEngine(self.config)
+        self.cache_stale = 0
+        self.high_stress_dur = {}
+        self.pre_crisis_smh = float(self.defaults.get("SMH_50D_AVERAGE_NORM", 550))
+        self.pre_crisis_dbb = float(self.defaults.get("DBB_50D_AVERAGE_NORM", 25))
+        self.reference_mode = "normal"
 
-    async def _fetch_data_stream(self, symbol, fallback_val):
+    async def _fetch_prices(self, symbol, fallback):
         vault = self.config.get("ENTERPRISE_DATA_GATEWAYS", {}).get("API_KEYS_VAULT", {})
-        poly_key = vault.get("POLYGON_IO_KEY", "")
-
-        if poly_key and "PASTE" not in poly_key.upper():
+        key = vault.get("POLYGON_IO_KEY", "")
+        if key and "PASTE" not in key.upper():
             base = self.config["ENTERPRISE_DATA_GATEWAYS"]["POLYGON_IO_MACRO_FEED"].rstrip("/")
-            url = f"{base}/v2/aggs/ticker/{symbol}/prev?adjusted=true&apiKey={poly_key}"
+            url = f"{base}/v2/aggs/ticker/{symbol}/prev?adjusted=true&apiKey={key}"
         else:
             url = (
                 f"https://query1.finance.yahoo.com/v8/finance/chart/{symbol}"
                 f"?interval=1d&range=3mo"
             )
-
         try:
             loop = asyncio.get_running_loop()
-            req = urllib.request.Request(
-                url,
-                headers={"User-Agent": "Mozilla/5.0 SSM/30.0"},
-            )
+            req = urllib.request.Request(url, headers={"User-Agent": "SSM/30.5"})
             raw = await loop.run_in_executor(
                 None, lambda: urllib.request.urlopen(req, timeout=8.0).read()
             )
             data = json.loads(raw.decode())
-
             if "results" in data:
                 return [float(x["c"]) for x in data["results"]]
-
-            result_list = data.get("chart", {}).get("result", [])
-            if not result_list:
-                return [fallback_val] * 50
-            closes = (
-                result_list[0]
-                .get("indicators", {})
-                .get("quote", [{}])[0]
-                .get("close", [])
-            )
+            res = data.get("chart", {}).get("result") or []
+            if not res:
+                return [fallback] * 50
+            closes = res[0].get("indicators", {}).get("quote", [{}])[0].get("close", [])
             closes = [c for c in closes if c is not None]
-            return closes if closes else [fallback_val] * 50
+            return closes if closes else [fallback] * 50
         except Exception:
-            return [fallback_val] * 50
+            return [fallback] * 50
 
-    async def _fetch_tron_usdt_stream(self):
+    async def _fetch_usdt(self):
         vault = self.config.get("ENTERPRISE_DATA_GATEWAYS", {}).get("API_KEYS_VAULT", {})
-        qn_key = vault.get("QUICKNODE_TRON_KEY", "")
+        qn = vault.get("QUICKNODE_TRON_KEY", "")
         usdt = "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t"
-
-        if qn_key and "PASTE" not in qn_key.upper():
+        if qn and "PASTE" not in qn.upper():
             base = self.config["ENTERPRISE_DATA_GATEWAYS"]["QUICKNODE_TRON_RPC"].rstrip("/")
-            url = f"{base}/{qn_key}"
+            url = f"{base}/{qn}"
         else:
             url = (
                 f"https://api.trongrid.io/v1/contracts/{usdt}/events"
                 f"?event_name=Transfer&only_confirmed=true&limit=50"
             )
-
         try:
             loop = asyncio.get_running_loop()
             req = urllib.request.Request(
-                url,
-                headers={"User-Agent": "Mozilla/5.0", "Accept": "application/json"},
+                url, headers={"User-Agent": "SSM/30.5", "Accept": "application/json"}
             )
             raw = await loop.run_in_executor(
                 None, lambda: urllib.request.urlopen(req, timeout=8.0).read()
             )
             data = json.loads(raw.decode())
             values = []
-
-            for event in data.get("data", []):
+            for ev in data.get("data", []):
                 try:
-                    result = event.get("result", {})
-                    raw_val = (
-                        result.get("value")
-                        or result.get("_value")
-                        or result.get("amount")
-                    )
-                    if raw_val is None:
+                    r = ev.get("result", {})
+                    v = r.get("value") or r.get("_value") or r.get("amount")
+                    if v is None:
                         continue
-                    amt = float(raw_val) / 1e6
-                    if amt >= 100.0:
+                    amt = float(v) / 1e6
+                    if amt >= 100:
                         values.append(amt)
                 except Exception:
                     continue
-
-            # Legacy hex path (if payload shape differs)
-            if not values:
-                for tx in data.get("data", []):
-                    try:
-                        contracts = tx.get("raw_data", {}).get("contract", [])
-                        if not contracts or not isinstance(contracts, list):
-                            continue
-                        block = contracts[0].get("parameter", {}).get("value", {})
-                        hex_data = block.get("data", "")
-                        if (
-                            isinstance(hex_data, str)
-                            and hex_data.startswith("a9059cbb")
-                            and len(hex_data) >= 136
-                        ):
-                            amt = int(hex_data[-64:], 16) / 1e6
-                            if amt >= 100.0:
-                                values.append(amt)
-                    except Exception:
-                        continue
             return values
         except Exception:
             return []
 
-    def _detect_change_points(self, history_data):
-        if len(history_data) < 24:
+    def _change_point(self, series):
+        if len(series) < 24:
             return False
         try:
-            signal = np.array(history_data, dtype=float)
+            signal = np.array(series, dtype=float)
             if HAS_RUPTURES:
-                algo = rpt.Pelt(model="rbf").fit(signal)
-                result = algo.predict(pen=3.0)
-                if len(result) > 1 and (len(history_data) - result[-2]) <= 5:
-                    return True
-                return False
-            # Fallback: large recent move vs earlier window std
+                br = rpt.Pelt(model="rbf").fit(signal).predict(pen=3.0)
+                return len(br) > 1 and (len(series) - br[-2]) <= 5
             mid = len(signal) // 2
             mu, sd = float(np.mean(signal[:mid])), float(np.std(signal[:mid])) + 1e-9
-            recent = float(np.mean(signal[-5:]))
-            return abs(recent - mu) / sd > 2.5
+            return abs(float(np.mean(signal[-5:])) - mu) / sd > 2.5
         except Exception:
             return False
 
-    def _compute_z_score_stress(self, current, history, mode):
+    def _z_stress(self, current, history, mode):
         if len(history) < 15:
             base = sum(history) / len(history) if history else current
             if mode == "dd":
                 return min(max((base - current) / max(base, 1e-9) * 4.0, 0.0), 1.0)
             return min(max((current - base) / max(base, 1e-9) * 5.0, 0.0), 1.0)
-        mean = float(np.mean(history))
-        std = float(np.std(history)) + 1e-9
-        z = (current - mean) / std
-        cdf = stats.norm.cdf(z)
-        if mode == "dd":
-            return float(round(1.0 - cdf, 4))
-        return float(round(cdf, 4))
+        mu, sd = float(np.mean(history)), float(np.std(history)) + 1e-9
+        cdf = float(stats.norm.cdf((current - mu) / sd))
+        return round(1.0 - cdf, 4) if mode == "dd" else round(cdf, 4)
+
+    def _structural_S(self, prior: dict) -> float:
+        F = float(prior.get("fiscal_pressure", 0))
+        D = float(prior.get("demographic_squeeze", 0))
+        B = float(prior.get("buffer_gap", 0))
+        a = float(self.mix["alpha_fiscal"])
+        b = float(self.mix["beta_demographic"])
+        g = float(self.mix["gamma_buffer"])
+        s = a + b + g
+        a, b, g = (a / s, b / s, g / s) if s > 0 else (0.5, 0.35, 0.15)
+        lam = float(self.defaults.get("STRUCTURAL_LAMBDA", 2.5))
+        return float(min(max(1.0 - math.exp(-lam * (a * F + b * D + g * B)), 0.0), 1.0))
+
+    def _combine(self, G: float, S: float, ground: float) -> float:
+        # R primary = max(G,S); ground can lift display slightly when hot
+        mode = (self.composite_mode or "max").lower()
+        if mode == "soft_or":
+            base = G + S - G * S
+        else:
+            base = max(G, S)
+        lift = 0.15 * max(ground - base, 0.0)
+        return float(min(max(base + lift, 0.0), 1.0))
+
+    def _gap_and_alarms(self, G: float, S: float, ground: float) -> dict:
+        """Official-calm vs ground/structural-hot → the product's core insight."""
+        official = G
+        alternative = max(S, ground)
+        gap = float(max(alternative - official, 0.0))
+        gap_thr = float(self.defaults.get("GAP_ALARM_THRESHOLD", 0.25))
+        coverage = float(self.defaults.get("ASSUMED_DIGITAL_COVERAGE", 0.45))
+
+        alarms = []
+        if S >= float(self.defaults.get("CHRONIC_CRITICAL_S", 0.75)):
+            alarms.append("CHRONIC_CRITICAL")
+        if S >= float(self.defaults.get("CHRONIC_WATCH_S", 0.45)) and G < 0.50:
+            alarms.append("SILENT_STRESS")
+        if gap >= gap_thr:
+            alarms.append("NARRATIVE_LAG")
+        if ground >= 0.60 and G < 0.55:
+            alarms.append("GROUND_DIVERGENCE")
+        if ground >= 0.70:
+            alarms.append("HUMANITARIAN_STRESS")
+        if coverage < 0.50 and alternative >= 0.55:
+            alarms.append("LOW_DIGITAL_COVERAGE_WARNING")
+
+        return {
+            "OFFICIAL_LAYER": round(official * 100, 2),
+            "ALTERNATIVE_LAYER": round(alternative * 100, 2),
+            "GAP_SCORE": round(gap * 100, 2),
+            "ASSUMED_DIGITAL_COVERAGE": coverage,
+            "ALARM_CODES": alarms,
+            "ALARM_ACTIVE": len(alarms) > 0,
+            "WHY": (
+                "Gap = max(structural, ground) − market regime. "
+                "Positive gap means official/market calm while land/structural load is higher."
+            ),
+        }
 
     async def execute_monitoring_cycle(self, country_code="US", past_risk=50.0):
-        defaults = self.config["GLOBAL_DEFAULTS"]
-        profile = self.config["COUNTRY_PROFILES"].get(
-            country_code, self.config["COUNTRY_PROFILES"]["US"]
-        )
-        params = {**defaults, **profile}
+        code = country_code.upper().strip()
+        prior = self.priors.get(code, self.priors.get("US", {}))
+        d = self.defaults
 
-        smh_pool = await self._fetch_data_stream("SMH", params["SMH_50D_AVERAGE_NORM"])
-        dbb_pool = await self._fetch_data_stream("DBB", params["DBB_50D_AVERAGE_NORM"])
-        txs = await self._fetch_tron_usdt_stream()
+        smh_hist = await self._fetch_prices("SMH", d["SMH_50D_AVERAGE_NORM"])
+        dbb_hist = await self._fetch_prices("DBB", d["DBB_50D_AVERAGE_NORM"])
+        txs = await self._fetch_usdt()
+        ground_pack = await self.ground.fetch_all(code, prior)
 
         if txs:
-            self.onchain_buffer.extend(txs)
-            self.cache_stale_cycles = 0
-            network_log = "FEED_OK"
+            self.onchain.extend(txs)
+            self.cache_stale = 0
+            network = "FEED_OK"
         else:
-            network_log = "FEED_DEGRADED"
-            if self.onchain_buffer.get_size() == 0:
-                self.cache_stale_cycles += 1
+            network = "FEED_DEGRADED"
+            if self.onchain.size() == 0:
+                self.cache_stale += 1
 
-        current_smh = smh_pool[-1] if smh_pool else params["SMH_50D_AVERAGE_NORM"]
-        current_dbb = dbb_pool[-1] if dbb_pool else params["DBB_50D_AVERAGE_NORM"]
-        usdt_med = self.onchain_buffer.get_trimmed_rolling_median(
-            params["HISTORICAL_MEDIAN_USDT"]
+        smh = smh_hist[-1] if smh_hist else d["SMH_50D_AVERAGE_NORM"]
+        dbb = dbb_hist[-1] if dbb_hist else d["DBB_50D_AVERAGE_NORM"]
+        usdt_med = self.onchain.trimmed_median(
+            float(prior.get("historical_median_usdt", 10000))
         )
 
-        smh_break = self._detect_change_points(smh_pool)
-        dbb_break = self._detect_change_points(dbb_pool)
-
-        code = country_code.upper()
-        hs_dur = self.high_stress_duration.get(code, 0)
-
-        # Anti-drift: freeze pre-crisis baseline when break detected
-        if smh_break or dbb_break or hs_dur >= 3:
-            if hs_dur == 0:
+        smh_break = self._change_point(smh_hist)
+        dbb_break = self._change_point(dbb_hist)
+        hs = self.high_stress_dur.get(code, 0)
+        if smh_break or dbb_break or hs >= 3:
+            if hs == 0:
                 self.pre_crisis_smh = (
-                    float(np.mean(smh_pool[-50:])) if len(smh_pool) >= 50 else current_smh
+                    float(np.mean(smh_hist[-50:])) if len(smh_hist) >= 50 else smh
                 )
                 self.pre_crisis_dbb = (
-                    float(np.mean(dbb_pool[-50:])) if len(dbb_pool) >= 50 else current_dbb
+                    float(np.mean(dbb_hist[-50:])) if len(dbb_hist) >= 50 else dbb
                 )
             self.reference_mode = "pre_crisis"
         else:
             self.reference_mode = "normal"
 
-        active_smh = (
-            [self.pre_crisis_smh] * 50 if self.reference_mode == "pre_crisis" else smh_pool
+        act_smh = (
+            [self.pre_crisis_smh] * 50
+            if self.reference_mode == "pre_crisis"
+            else smh_hist
         )
-        active_dbb = (
-            [self.pre_crisis_dbb] * 50 if self.reference_mode == "pre_crisis" else dbb_pool
-        )
-
-        res_bubble = self._compute_z_score_stress(current_smh, active_smh, "dd")
-        res_material = self._compute_z_score_stress(current_dbb, active_dbb, "spike")
-
-        base_usdt = max(params["HISTORICAL_MEDIAN_USDT"], 1e-9)
-        res_crypto = min(
-            max(0.12 + ((usdt_med - base_usdt) / base_usdt) * 0.25, 0.0), 0.40
+        act_dbb = (
+            [self.pre_crisis_dbb] * 50
+            if self.reference_mode == "pre_crisis"
+            else dbb_hist
         )
 
-        material_deficit = max((1.0 - res_material) - params["GARAGE_BUFFER"], 0.0)
-        if material_deficit > 0.6:
-            material_deficit *= 2.0
+        tech = self._z_stress(smh, act_smh, "dd")
+        mat_raw = self._z_stress(dbb, act_dbb, "spike")
+        mat_def = max((1.0 - mat_raw) - float(prior.get("buffer_gap", 0)), 0.0)
+        if mat_def > 0.6:
+            mat_def *= 2.0
+        base_usdt = max(float(prior.get("historical_median_usdt", 1)), 1e-9)
+        flow = min(max(0.12 + ((usdt_med - base_usdt) / base_usdt) * 0.25, 0.0), 0.40)
 
         w = self.weights
-        core = (
-            res_bubble * float(w["w_smh"])
-            + material_deficit * float(w["w_metals"])
-            + res_crypto * float(w["w_flow"])
-            + float(params["FISCAL_PRESSURE"]) * float(w["w_fiscal"])
+        market_linear = (
+            tech * float(w.get("w_smh", 0.35))
+            + mat_def * float(w.get("w_metals", 0.25))
+            + flow * float(w.get("w_flow", 0.20))
         )
-        financial = core * (1.0 + params["BASE_BLIND_SPOT"])
-        kinetic = (params.get("DEMOGRAPHIC_SHRINKAGE", 0.0) * 0.45) - (
-            params["BIOLOGICAL_BUFFER"] * 0.30
-        )
+        market_linear *= 1.0 + float(d.get("BASE_BLIND_SPOT", 0.1))
+        market_linear += (past_risk / 100.0) * 0.08
+        if self.cache_stale:
+            market_linear += float(w.get("w_stale", 0.1)) * math.log(self.cache_stale + 1)
 
-        total_stress = financial + max(kinetic, 0.0) * 1.2 + (past_risk / 100.0) * 0.15
-        if self.cache_stale_cycles > 0:
-            total_stress += round(0.4 * math.log(self.cache_stale_cycles + 1), 3)
+        steep = float(d.get("SIGMOID_STEEPNESS", 1.2))
+        G = float(min(max(1.0 / (1.0 + math.exp(-market_linear * steep)), 0.0), 1.0))
+        S = self._structural_S(prior)
+        ground = float(ground_pack["GROUND_INDEX"])
+        R = self._combine(G, S, ground)
+        risk_pct = round(R * 100.0, 2)
 
-        risk_pct = round(
-            (1.0 / (1.0 + math.exp(-total_stress * params["SIGMOID_STEEPNESS"]))) * 100.0,
-            2,
-        )
+        gap_block = self._gap_and_alarms(G, S, ground)
 
-        if risk_pct >= params["ALERT_THRESHOLD"]:
+        alert, elev = float(d["ALERT_THRESHOLD"]), float(d["ELEVATED_THRESHOLD"])
+        chronic_crit = float(d.get("CHRONIC_CRITICAL_S", 0.75))
+        chronic_watch = float(d.get("CHRONIC_WATCH_S", 0.45))
+
+        if risk_pct >= alert or S >= chronic_crit or ground >= 0.75:
             status = "CRITICAL"
-            self.high_stress_duration[code] = hs_dur + 1
-        elif risk_pct >= params["ELEVATED_THRESHOLD"]:
+            self.high_stress_dur[code] = hs + 1
+        elif risk_pct >= elev or S >= chronic_watch or ground >= 0.45:
             status = "ELEVATED"
-            self.high_stress_duration[code] = 0
+            self.high_stress_dur[code] = 0
         else:
             status = "NORMAL"
-            self.high_stress_duration[code] = 0
+            self.high_stress_dur[code] = 0
+
+        local_overlay = (
+            "STRESS"
+            if S >= chronic_crit
+            else ("WATCH" if S >= chronic_watch else "NONE")
+        )
 
         ts = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
-
         self.db.write_triage_log(
             country=code,
             risk_pct=risk_pct,
             status_level=status,
-            smh_price=float(current_smh),
-            dbb_price=float(current_dbb),
+            smh_price=float(smh),
+            dbb_price=float(dbb),
             usdt_median=float(usdt_med),
+            global_score=G,
+            structural_score=S,
+            ground_score=ground,
+            gap_score=gap_block["GAP_SCORE"] / 100.0,
         )
 
         return {
             "COUNTRY": code,
             "TIMESTAMP_UTC": ts,
-            "RISK_PCT": risk_pct,
+            "DISPLAY_SCORE": risk_pct,
             "STATUS": status,
-            "REGIME": self.reference_mode,
-            "SMH": round(float(current_smh), 2),
-            "DBB": round(float(current_dbb), 2),
-            "USDT_MEDIAN": round(float(usdt_med), 2),
-            "NETWORK": network_log,
-            "CHANGE_POINT_SMH": bool(smh_break),
-            "CHANGE_POINT_DBB": bool(dbb_break),
-            "DRIVERS": {
-                "tech_stress": round(res_bubble, 4),
-                "materials_deficit": round(material_deficit, 4),
-                "stablecoin_flow": round(res_crypto, 4),
-                "fiscal": round(float(params["FISCAL_PRESSURE"]), 4),
+            "OFFICIAL": {
+                "GLOBAL_REGIME_SCORE": round(G * 100, 2),
+                "SMH": round(float(smh), 2),
+                "DBB": round(float(dbb), 2),
+                "USDT_MEDIAN": round(float(usdt_med), 2),
+                "NETWORK": network,
+                "REGIME_MARKET": self.reference_mode,
+                "STRUCTURAL_BREAK_SMH": bool(smh_break),
+                "STRUCTURAL_BREAK_DBB": bool(dbb_break),
             },
+            "STRUCTURAL": {
+                "LOCAL_STRUCTURAL_SCORE": round(S * 100, 2),
+                "LOCAL_OVERLAY": local_overlay,
+                "PRIOR_NOTE": prior.get("note", ""),
+            },
+            "GROUND": {
+                "GROUND_INDEX": round(ground * 100, 2),
+                "SIGNALS": {
+                    k: {
+                        "score": round(v["score"] * 100, 2),
+                        "source": v["source"],
+                        "quality": v["quality"],
+                    }
+                    for k, v in ground_pack["signals"].items()
+                },
+                "NOTE": ground_pack["coverage_note"],
+            },
+            "COMPARISON": gap_block,
+            "DRIVERS": {
+                "tech_stress": round(tech, 4),
+                "materials_deficit": round(mat_def, 4),
+                "stablecoin_flow": round(flow, 4),
+                "fiscal_prior": round(float(prior.get("fiscal_pressure", 0)), 4),
+                "demographic_prior": round(
+                    float(prior.get("demographic_squeeze", 0)), 4
+                ),
+            },
+            "COMPOSITE_MODE": self.composite_mode,
         }
 
 
 async def run_all():
-    """Orchestrate one cycle for all configured countries; write JSON passport."""
     core = SovereignGlobalMonitorCore()
-    countries = list(core.config.get("COUNTRY_PROFILES", {}).keys()) or [
-        "US",
-        "UA",
-        "DE",
-        "GB",
-        "CN",
-        "PL",
-        "RU",
-        "IL",
-    ]
-
+    countries = list(core.priors.keys()) or ["US", "UA", "DE", "GB", "CN", "PL", "RU", "IL"]
     feeds = []
     for code in countries:
         try:
-            hist = core.db.fetch_historical_matrix(country=code, limit=1)
+            hist = core.db.fetch_historical_matrix(code, limit=1)
             past = hist[0]["risk_pct"] if hist else 50.0
-            result = await core.execute_monitoring_cycle(country_code=code, past_risk=past)
-            feeds.append(result)
+            row = await core.execute_monitoring_cycle(code, past_risk=past)
+            feeds.append(row)
+            alarms = ",".join(row["COMPARISON"]["ALARM_CODES"]) or "—"
             print(
-                f"[SSM] {code}: {result['RISK_PCT']}% {result['STATUS']} "
-                f"regime={result['REGIME']} net={result['NETWORK']}",
+                f"[SSM] {code}: R={row['DISPLAY_SCORE']}% {row['STATUS']} "
+                f"G={row['OFFICIAL']['GLOBAL_REGIME_SCORE']} "
+                f"S={row['STRUCTURAL']['LOCAL_STRUCTURAL_SCORE']} "
+                f"Ground={row['GROUND']['GROUND_INDEX']} "
+                f"Gap={row['COMPARISON']['GAP_SCORE']} "
+                f"alarms=[{alarms}]",
                 flush=True,
             )
-        except Exception as exc:
-            print(f"[SSM ERROR] {code}: {exc}", file=sys.stderr)
+        except Exception as e:
+            print(f"[SSM ERROR] {code}: {e}", file=sys.stderr)
             traceback.print_exc()
 
     report = {
-        "HEADER": "SSM_REGIME_PASSPORT",
-        "VERSION": "30.0",
+        "HEADER": "SSM_HYBRID_GROUND_PASSPORT",
+        "VERSION": "30.5",
         "DISCLAIMER": (
-            "Experimental research tool. Not investment advice. "
-            "Composite score is heuristic; validate before any decision use."
+            "Hybrid radar: official/market (G) beside structural priors (S) and five ground "
+            "signals. Gap highlights when markets look calm while land/structural load is high. "
+            "Not investment advice. Ground scores are proxies + priors, not a full informal-economy census."
         ),
+        "METHODOLOGY": {
+            "OFFICIAL_G": "Market regime from SMH/DBB/USDT + change-point anti-drift",
+            "STRUCTURAL_S": "S=1-exp(-λ(αF+βD+γB)) versioned LOCAL_PRIORS",
+            "GROUND": "conflict, food, migration, mortality, physical — prior baselines + live APIs when keys exist",
+            "GAP": "max(S, ground) − G; alarms when official calm and alternative hot",
+            "DISPLAY_R": "max(G,S) plus small lift from ground excess",
+        },
         "TIMESTAMP_UTC": datetime.datetime.now(datetime.timezone.utc).strftime(
             "%Y-%m-%d %H:%M:%S"
         ),
         "WEIGHTS": core.weights,
+        "STRUCTURAL_MIX": core.mix,
+        "COMPOSITE_MODE": core.composite_mode,
+        "ASSUMED_DIGITAL_COVERAGE": core.defaults.get("ASSUMED_DIGITAL_COVERAGE"),
         "DATA_DYNAMIC_FEEDS": feeds,
         "COUNTRIES_PROCESSED": len(feeds),
     }
-
-    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    path = os.path.join(root, "ssm_unified_report.json")
+    path = os.path.join(core.root, "ssm_unified_report.json")
     with open(path, "w", encoding="utf-8") as f:
         json.dump(report, f, ensure_ascii=False, indent=2)
     print(f"[SSM] Report → {path}", flush=True)
