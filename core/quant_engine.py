@@ -79,34 +79,68 @@ class SovereignGlobalMonitorCore:
         self.pre_crisis_dbb = float(self.defaults.get("DBB_50D_AVERAGE_NORM", 25))
         self.reference_mode = "normal"
 
+    def _yahoo_chart_urls(self, symbol: str):
+        # Multiple hosts — Yahoo intermittently blocks single endpoint/UA
+        q = f"{symbol}?interval=1d&range=3mo"
+        return [
+            f"https://query1.finance.yahoo.com/v8/finance/chart/{q}",
+            f"https://query2.finance.yahoo.com/v8/finance/chart/{q}",
+        ]
+
+    def _http_get_sync(self, url: str, timeout: float = 15.0) -> bytes:
+        headers = {
+            "User-Agent": (
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                "AppleWebKit/537.36 (KHTML, like Gecko) "
+                "Chrome/120.0.0.0 Safari/537.36"
+            ),
+            "Accept": "application/json,text/plain,*/*",
+            "Accept-Language": "en-US,en;q=0.9",
+        }
+        req = urllib.request.Request(url, headers=headers)
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            return resp.read()
+
     async def _fetch_prices(self, symbol, fallback):
+        """Return list of closes. Prefer live Yahoo/Polygon; never silently fake a flat series without log."""
         vault = self.config.get("ENTERPRISE_DATA_GATEWAYS", {}).get("API_KEYS_VAULT", {})
         key = vault.get("POLYGON_IO_KEY", "")
+        urls = []
         if key and "PASTE" not in key.upper():
             base = self.config["ENTERPRISE_DATA_GATEWAYS"]["POLYGON_IO_MACRO_FEED"].rstrip("/")
-            url = f"{base}/v2/aggs/ticker/{symbol}/prev?adjusted=true&apiKey={key}"
-        else:
-            url = (
-                f"https://query1.finance.yahoo.com/v8/finance/chart/{symbol}"
-                f"?interval=1d&range=3mo"
+            urls.append(
+                f"{base}/v2/aggs/ticker/{symbol}/range/1/day/2024-01-01/2030-01-01"
+                f"?adjusted=true&limit=120&apiKey={key}"
             )
-        try:
-            loop = asyncio.get_running_loop()
-            req = urllib.request.Request(url, headers={"User-Agent": "SSM/30.5"})
-            raw = await loop.run_in_executor(
-                None, lambda: urllib.request.urlopen(req, timeout=8.0).read()
-            )
-            data = json.loads(raw.decode())
-            if "results" in data:
-                return [float(x["c"]) for x in data["results"]]
-            res = data.get("chart", {}).get("result") or []
-            if not res:
-                return [fallback] * 50
-            closes = res[0].get("indicators", {}).get("quote", [{}])[0].get("close", [])
-            closes = [c for c in closes if c is not None]
-            return closes if closes else [fallback] * 50
-        except Exception:
-            return [fallback] * 50
+        urls.extend(self._yahoo_chart_urls(symbol))
+
+        loop = asyncio.get_running_loop()
+        last_err = None
+        for url in urls:
+            try:
+                raw = await loop.run_in_executor(None, lambda u=url: self._http_get_sync(u))
+                data = json.loads(raw.decode())
+                if "results" in data and data["results"]:
+                    closes = [float(x["c"]) for x in data["results"] if x.get("c") is not None]
+                    if closes:
+                        print(f"[SSM FEED] {symbol}: LIVE n={len(closes)} last={closes[-1]:.2f}", flush=True)
+                        return closes
+                res = data.get("chart", {}).get("result") or []
+                if res:
+                    closes = res[0].get("indicators", {}).get("quote", [{}])[0].get("close", [])
+                    closes = [float(c) for c in closes if c is not None]
+                    if closes:
+                        print(f"[SSM FEED] {symbol}: LIVE n={len(closes)} last={closes[-1]:.2f}", flush=True)
+                        return closes
+            except Exception as e:
+                last_err = e
+                continue
+        print(
+            f"[SSM FEED] {symbol}: FALLBACK {fallback} ({type(last_err).__name__ if last_err else 'empty'})",
+            file=sys.stderr,
+            flush=True,
+        )
+        return [float(fallback)] * 50
 
     async def _fetch_usdt(self):
         vault = self.config.get("ENTERPRISE_DATA_GATEWAYS", {}).get("API_KEYS_VAULT", {})
@@ -123,7 +157,7 @@ class SovereignGlobalMonitorCore:
         try:
             loop = asyncio.get_running_loop()
             req = urllib.request.Request(
-                url, headers={"User-Agent": "SSM/30.5", "Accept": "application/json"}
+                url, headers={"User-Agent": "SSM/30.5.1", "Accept": "application/json"}
             )
             raw = await loop.run_in_executor(
                 None, lambda: urllib.request.urlopen(req, timeout=8.0).read()
@@ -231,8 +265,14 @@ class SovereignGlobalMonitorCore:
         prior = self.priors.get(code, self.priors.get("US", {}))
         d = self.defaults
 
-        smh_hist = await self._fetch_prices("SMH", d["SMH_50D_AVERAGE_NORM"])
-        dbb_hist = await self._fetch_prices("DBB", d["DBB_50D_AVERAGE_NORM"])
+        if getattr(self, "_shared_smh", None):
+            smh_hist = list(self._shared_smh)
+        else:
+            smh_hist = await self._fetch_prices("SMH", d["SMH_50D_AVERAGE_NORM"])
+        if getattr(self, "_shared_dbb", None):
+            dbb_hist = list(self._shared_dbb)
+        else:
+            dbb_hist = await self._fetch_prices("DBB", d["DBB_50D_AVERAGE_NORM"])
         txs = await self._fetch_usdt()
         ground_pack = await self.ground.fetch_all(code, prior)
 
@@ -348,6 +388,8 @@ class SovereignGlobalMonitorCore:
                 "GLOBAL_REGIME_SCORE": round(G * 100, 2),
                 "SMH": round(float(smh), 2),
                 "DBB": round(float(dbb), 2),
+                "SMH_SOURCE": "LIVE" if abs(float(smh) - float(d["SMH_50D_AVERAGE_NORM"])) > 0.5 else "FALLBACK",
+                "DBB_SOURCE": "LIVE" if abs(float(dbb) - float(d["DBB_50D_AVERAGE_NORM"])) > 0.5 else "FALLBACK",
                 "USDT_MEDIAN": round(float(usdt_med), 2),
                 "NETWORK": network,
                 "REGIME_MARKET": self.reference_mode,
@@ -388,6 +430,11 @@ class SovereignGlobalMonitorCore:
 async def run_all():
     core = SovereignGlobalMonitorCore()
     countries = list(core.priors.keys()) or ["US", "UA", "DE", "GB", "CN", "PL", "RU", "IL"]
+    # Fetch global market series ONCE (shared across countries) — avoids Yahoo rate limits
+    d = core.defaults
+    print("[SSM] Fetching shared market feeds (SMH/DBB)...", flush=True)
+    core._shared_smh = await core._fetch_prices("SMH", d["SMH_50D_AVERAGE_NORM"])
+    core._shared_dbb = await core._fetch_prices("DBB", d["DBB_50D_AVERAGE_NORM"])
     feeds = []
     for code in countries:
         try:
@@ -411,7 +458,7 @@ async def run_all():
 
     report = {
         "HEADER": "SSM_HYBRID_GROUND_PASSPORT",
-        "VERSION": "30.5",
+        "VERSION": "30.5.1",
         "DISCLAIMER": (
             "Hybrid radar: official/market (G) beside structural priors (S) and five ground "
             "signals. Gap highlights when markets look calm while land/structural load is high. "
