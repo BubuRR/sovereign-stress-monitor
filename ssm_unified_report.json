@@ -1,6 +1,6 @@
 {
   "HEADER": "SSM_HYBRID_GROUND_PASSPORT",
-  "VERSION": "30.5",
+  "VERSION": "30.5.1",
   "DISCLAIMER": "Hybrid radar: official/market (G) beside structural priors (S) and five ground signals. Gap highlights when markets look calm while land/structural load is high. Not investment advice. Ground scores are proxies + priors, not a full informal-economy census.",
   "METHODOLOGY": {
     "OFFICIAL_G": "Market regime from SMH/DBB/USDT + change-point anti-drift",
@@ -9,7 +9,7 @@
     "GAP": "max(S, ground) − G; alarms when official calm and alternative hot",
     "DISPLAY_R": "max(G,S) plus small lift from ground excess"
   },
-  "TIMESTAMP_UTC": "2026-09-20 10:09:21",
+  "TIMESTAMP_UTC": "2026-09-20 11:31:10",
   "WEIGHTS": {
     "w_smh": 0.35,
     "w_metals": 0.25,
@@ -27,14 +27,16 @@
   "DATA_DYNAMIC_FEEDS": [
     {
       "COUNTRY": "US",
-      "TIMESTAMP_UTC": "2026-09-20 10:08:55",
-      "DISPLAY_SCORE": 60.76,
+      "TIMESTAMP_UTC": "2026-09-20 11:30:23",
+      "DISPLAY_SCORE": 57.74,
       "STATUS": "ELEVATED",
       "OFFICIAL": {
-        "GLOBAL_REGIME_SCORE": 60.76,
-        "SMH": 550.0,
-        "DBB": 25.0,
-        "USDT_MEDIAN": 798.5,
+        "GLOBAL_REGIME_SCORE": 57.74,
+        "SMH": 573.0,
+        "DBB": 25.94,
+        "SMH_SOURCE": "LIVE",
+        "DBB_SOURCE": "LIVE",
+        "USDT_MEDIAN": 1627.62,
         "NETWORK": "FEED_OK",
         "REGIME_MARKET": "normal",
         "STRUCTURAL_BREAK_SMH": false,
@@ -77,7 +79,7 @@
         "NOTE": "Ground layer blends LOCAL_PRIORS baselines with live feeds when keys/APIs work; otherwise prior_only. Not a full shadow-economy census."
       },
       "COMPARISON": {
-        "OFFICIAL_LAYER": 60.76,
+        "OFFICIAL_LAYER": 57.74,
         "ALTERNATIVE_LAYER": 36.48,
         "GAP_SCORE": 0.0,
         "ASSUMED_DIGITAL_COVERAGE": 0.45,
@@ -86,8 +88,8 @@
         "WHY": "Gap = max(structural, ground) − market regime. Positive gap means official/market calm while land/structural load is higher."
       },
       "DRIVERS": {
-        "tech_stress": 0.5,
-        "materials_deficit": 0.48,
+        "tech_stress": 0.5392,
+        "materials_deficit": 0.046,
         "stablecoin_flow": 0.0,
         "fiscal_prior": 0.35,
         "demographic_prior": 0.01
@@ -96,14 +98,16 @@
     },
     {
       "COUNTRY": "UA",
-      "TIMESTAMP_UTC": "2026-09-20 10:08:57",
+      "TIMESTAMP_UTC": "2026-09-20 11:30:30",
       "DISPLAY_SCORE": 61.52,
       "STATUS": "ELEVATED",
       "OFFICIAL": {
-        "GLOBAL_REGIME_SCORE": 59.74,
-        "SMH": 550.0,
-        "DBB": 25.0,
-        "USDT_MEDIAN": 902.71,
+        "GLOBAL_REGIME_SCORE": 57.37,
+        "SMH": 573.0,
+        "DBB": 25.94,
+        "SMH_SOURCE": "LIVE",
+        "DBB_SOURCE": "LIVE",
+        "USDT_MEDIAN": 1105.0,
         "NETWORK": "FEED_OK",
         "REGIME_MARKET": "normal",
         "STRUCTURAL_BREAK_SMH": false,
@@ -146,9 +150,9 @@
         "NOTE": "Ground layer blends LOCAL_PRIORS baselines with live feeds when keys/APIs work; otherwise prior_only. Not a full shadow-economy census."
       },
       "COMPARISON": {
-        "OFFICIAL_LAYER": 59.74,
+        "OFFICIAL_LAYER": 57.37,
         "ALTERNATIVE_LAYER": 63.75,
-        "GAP_SCORE": 4.01,
+        "GAP_SCORE": 6.38,
         "ASSUMED_DIGITAL_COVERAGE": 0.45,
         "ALARM_CODES": [
           "LOW_DIGITAL_COVERAGE_WARNING"
@@ -157,8 +161,8 @@
         "WHY": "Gap = max(structural, ground) − market regime. Positive gap means official/market calm while land/structural load is higher."
       },
       "DRIVERS": {
-        "tech_stress": 0.5,
-        "materials_deficit": 0.35,
+        "tech_stress": 0.5392,
+        "materials_deficit": 0.0,
         "stablecoin_flow": 0.0,
         "fiscal_prior": 0.515,
         "demographic_prior": 0.28
@@ -167,14 +171,16 @@
     },
     {
       "COUNTRY": "DE",
-      "TIMESTAMP_UTC": "2026-09-20 10:09:02",
-      "DISPLAY_SCORE": 60.53,
+      "TIMESTAMP_UTC": "2026-09-20 11:30:38",
+      "DISPLAY_SCORE": 57.5,
       "STATUS": "ELEVATED",
       "OFFICIAL": {
-        "GLOBAL_REGIME_SCORE": 60.53,
-        "SMH": 550.0,
-        "DBB": 25.0,
-        "USDT_MEDIAN": 874.41,
+        "GLOBAL_REGIME_SCORE": 57.5,
+        "SMH": 573.0,
+        "DBB": 25.94,
+        "SMH_SOURCE": "LIVE",
+        "DBB_SOURCE": "LIVE",
+        "USDT_MEDIAN": 819.0,
         "NETWORK": "FEED_OK",
         "REGIME_MARKET": "normal",
         "STRUCTURAL_BREAK_SMH": false,
@@ -217,7 +223,7 @@
         "NOTE": "Ground layer blends LOCAL_PRIORS baselines with live feeds when keys/APIs work; otherwise prior_only. Not a full shadow-economy census."
       },
       "COMPARISON": {
-        "OFFICIAL_LAYER": 60.53,
+        "OFFICIAL_LAYER": 57.5,
         "ALTERNATIVE_LAYER": 46.0,
         "GAP_SCORE": 0.0,
         "ASSUMED_DIGITAL_COVERAGE": 0.45,
@@ -226,8 +232,8 @@
         "WHY": "Gap = max(structural, ground) − market regime. Positive gap means official/market calm while land/structural load is higher."
       },
       "DRIVERS": {
-        "tech_stress": 0.5,
-        "materials_deficit": 0.45,
+        "tech_stress": 0.5392,
+        "materials_deficit": 0.016,
         "stablecoin_flow": 0.0,
         "fiscal_prior": 0.45,
         "demographic_prior": 0.04
@@ -236,13 +242,15 @@
     },
     {
       "COUNTRY": "GB",
-      "TIMESTAMP_UTC": "2026-09-20 10:09:05",
-      "DISPLAY_SCORE": 60.61,
+      "TIMESTAMP_UTC": "2026-09-20 11:30:43",
+      "DISPLAY_SCORE": 57.58,
       "STATUS": "ELEVATED",
       "OFFICIAL": {
-        "GLOBAL_REGIME_SCORE": 60.61,
-        "SMH": 550.0,
-        "DBB": 25.0,
+        "GLOBAL_REGIME_SCORE": 57.58,
+        "SMH": 573.0,
+        "DBB": 25.94,
+        "SMH_SOURCE": "LIVE",
+        "DBB_SOURCE": "LIVE",
         "USDT_MEDIAN": 1000.0,
         "NETWORK": "FEED_OK",
         "REGIME_MARKET": "normal",
@@ -286,7 +294,7 @@
         "NOTE": "Ground layer blends LOCAL_PRIORS baselines with live feeds when keys/APIs work; otherwise prior_only. Not a full shadow-economy census."
       },
       "COMPARISON": {
-        "OFFICIAL_LAYER": 60.61,
+        "OFFICIAL_LAYER": 57.58,
         "ALTERNATIVE_LAYER": 43.94,
         "GAP_SCORE": 0.0,
         "ASSUMED_DIGITAL_COVERAGE": 0.45,
@@ -295,8 +303,8 @@
         "WHY": "Gap = max(structural, ground) − market regime. Positive gap means official/market calm while land/structural load is higher."
       },
       "DRIVERS": {
-        "tech_stress": 0.5,
-        "materials_deficit": 0.46,
+        "tech_stress": 0.5392,
+        "materials_deficit": 0.026,
         "stablecoin_flow": 0.0,
         "fiscal_prior": 0.43,
         "demographic_prior": 0.03
@@ -305,13 +313,15 @@
     },
     {
       "COUNTRY": "CN",
-      "TIMESTAMP_UTC": "2026-09-20 10:09:09",
-      "DISPLAY_SCORE": 60.76,
+      "TIMESTAMP_UTC": "2026-09-20 11:30:47",
+      "DISPLAY_SCORE": 57.74,
       "STATUS": "ELEVATED",
       "OFFICIAL": {
-        "GLOBAL_REGIME_SCORE": 60.76,
-        "SMH": 550.0,
-        "DBB": 25.0,
+        "GLOBAL_REGIME_SCORE": 57.74,
+        "SMH": 573.0,
+        "DBB": 25.94,
+        "SMH_SOURCE": "LIVE",
+        "DBB_SOURCE": "LIVE",
         "USDT_MEDIAN": 1000.0,
         "NETWORK": "FEED_OK",
         "REGIME_MARKET": "normal",
@@ -355,7 +365,7 @@
         "NOTE": "Ground layer blends LOCAL_PRIORS baselines with live feeds when keys/APIs work; otherwise prior_only. Not a full shadow-economy census."
       },
       "COMPARISON": {
-        "OFFICIAL_LAYER": 60.76,
+        "OFFICIAL_LAYER": 57.74,
         "ALTERNATIVE_LAYER": 34.79,
         "GAP_SCORE": 0.0,
         "ASSUMED_DIGITAL_COVERAGE": 0.45,
@@ -364,8 +374,8 @@
         "WHY": "Gap = max(structural, ground) − market regime. Positive gap means official/market calm while land/structural load is higher."
       },
       "DRIVERS": {
-        "tech_stress": 0.5,
-        "materials_deficit": 0.48,
+        "tech_stress": 0.5392,
+        "materials_deficit": 0.046,
         "stablecoin_flow": 0.0,
         "fiscal_prior": 0.28,
         "demographic_prior": 0.08
@@ -374,13 +384,15 @@
     },
     {
       "COUNTRY": "PL",
-      "TIMESTAMP_UTC": "2026-09-20 10:09:13",
-      "DISPLAY_SCORE": 60.13,
+      "TIMESTAMP_UTC": "2026-09-20 11:30:56",
+      "DISPLAY_SCORE": 57.37,
       "STATUS": "ELEVATED",
       "OFFICIAL": {
-        "GLOBAL_REGIME_SCORE": 60.13,
-        "SMH": 550.0,
-        "DBB": 25.0,
+        "GLOBAL_REGIME_SCORE": 57.37,
+        "SMH": 573.0,
+        "DBB": 25.94,
+        "SMH_SOURCE": "LIVE",
+        "DBB_SOURCE": "LIVE",
         "USDT_MEDIAN": 1000.0,
         "NETWORK": "FEED_OK",
         "REGIME_MARKET": "normal",
@@ -424,7 +436,7 @@
         "NOTE": "Ground layer blends LOCAL_PRIORS baselines with live feeds when keys/APIs work; otherwise prior_only. Not a full shadow-economy census."
       },
       "COMPARISON": {
-        "OFFICIAL_LAYER": 60.13,
+        "OFFICIAL_LAYER": 57.37,
         "ALTERNATIVE_LAYER": 45.26,
         "GAP_SCORE": 0.0,
         "ASSUMED_DIGITAL_COVERAGE": 0.45,
@@ -433,8 +445,8 @@
         "WHY": "Gap = max(structural, ground) − market regime. Positive gap means official/market calm while land/structural load is higher."
       },
       "DRIVERS": {
-        "tech_stress": 0.5,
-        "materials_deficit": 0.4,
+        "tech_stress": 0.5392,
+        "materials_deficit": 0.0,
         "stablecoin_flow": 0.0,
         "fiscal_prior": 0.41,
         "demographic_prior": 0.06
@@ -443,14 +455,16 @@
     },
     {
       "COUNTRY": "RU",
-      "TIMESTAMP_UTC": "2026-09-20 10:09:18",
-      "DISPLAY_SCORE": 59.18,
+      "TIMESTAMP_UTC": "2026-09-20 11:31:05",
+      "DISPLAY_SCORE": 57.37,
       "STATUS": "ELEVATED",
       "OFFICIAL": {
-        "GLOBAL_REGIME_SCORE": 59.18,
-        "SMH": 550.0,
-        "DBB": 25.0,
-        "USDT_MEDIAN": 905.71,
+        "GLOBAL_REGIME_SCORE": 57.37,
+        "SMH": 573.0,
+        "DBB": 25.94,
+        "SMH_SOURCE": "LIVE",
+        "DBB_SOURCE": "LIVE",
+        "USDT_MEDIAN": 1000.0,
         "NETWORK": "FEED_OK",
         "REGIME_MARKET": "normal",
         "STRUCTURAL_BREAK_SMH": false,
@@ -493,7 +507,7 @@
         "NOTE": "Ground layer blends LOCAL_PRIORS baselines with live feeds when keys/APIs work; otherwise prior_only. Not a full shadow-economy census."
       },
       "COMPARISON": {
-        "OFFICIAL_LAYER": 59.18,
+        "OFFICIAL_LAYER": 57.37,
         "ALTERNATIVE_LAYER": 51.08,
         "GAP_SCORE": 0.0,
         "ASSUMED_DIGITAL_COVERAGE": 0.45,
@@ -502,8 +516,8 @@
         "WHY": "Gap = max(structural, ground) − market regime. Positive gap means official/market calm while land/structural load is higher."
       },
       "DRIVERS": {
-        "tech_stress": 0.5,
-        "materials_deficit": 0.28,
+        "tech_stress": 0.5392,
+        "materials_deficit": 0.0,
         "stablecoin_flow": 0.0,
         "fiscal_prior": 0.38,
         "demographic_prior": 0.18
@@ -512,13 +526,15 @@
     },
     {
       "COUNTRY": "IL",
-      "TIMESTAMP_UTC": "2026-09-20 10:09:21",
-      "DISPLAY_SCORE": 60.29,
+      "TIMESTAMP_UTC": "2026-09-20 11:31:10",
+      "DISPLAY_SCORE": 57.37,
       "STATUS": "ELEVATED",
       "OFFICIAL": {
-        "GLOBAL_REGIME_SCORE": 60.29,
-        "SMH": 550.0,
-        "DBB": 25.0,
+        "GLOBAL_REGIME_SCORE": 57.37,
+        "SMH": 573.0,
+        "DBB": 25.94,
+        "SMH_SOURCE": "LIVE",
+        "DBB_SOURCE": "LIVE",
         "USDT_MEDIAN": 1000.0,
         "NETWORK": "FEED_OK",
         "REGIME_MARKET": "normal",
@@ -562,7 +578,7 @@
         "NOTE": "Ground layer blends LOCAL_PRIORS baselines with live feeds when keys/APIs work; otherwise prior_only. Not a full shadow-economy census."
       },
       "COMPARISON": {
-        "OFFICIAL_LAYER": 60.29,
+        "OFFICIAL_LAYER": 57.37,
         "ALTERNATIVE_LAYER": 50.84,
         "GAP_SCORE": 0.0,
         "ASSUMED_DIGITAL_COVERAGE": 0.45,
@@ -571,8 +587,8 @@
         "WHY": "Gap = max(structural, ground) − market regime. Positive gap means official/market calm while land/structural load is higher."
       },
       "DRIVERS": {
-        "tech_stress": 0.5,
-        "materials_deficit": 0.42,
+        "tech_stress": 0.5392,
+        "materials_deficit": 0.0,
         "stablecoin_flow": 0.0,
         "fiscal_prior": 0.46,
         "demographic_prior": 0.12
