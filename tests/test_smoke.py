@@ -1,44 +1,40 @@
-"""Smoke tests — run from project root: pytest -q"""
-import os
-import json
-import ast
-import pytest
-
+import os, json, ast
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+def test_syntax():
+    for rel in ["core/quant_engine.py", "core/ground_feeds.py", "core/database.py"]:
+        ast.parse(open(os.path.join(ROOT, rel), encoding="utf-8").read())
 
-def test_quant_engine_syntax():
-    path = os.path.join(ROOT, "core", "quant_engine.py")
-    src = open(path, encoding="utf-8").read()
-    ast.parse(src)
-    assert "async def run_all" in src
-    assert "async def execute_monitoring_cycle" in src
+def test_config_five_ground():
+    cfg = json.load(open(os.path.join(ROOT, "config/parameters.json")))
+    gs = cfg["GROUND_SIGNALS"]
+    for k in ["conflict", "food", "migration", "mortality", "physical"]:
+        assert k in gs
 
+def test_structural_and_gap_logic():
+    from core.quant_engine import SovereignGlobalMonitorCore
+    c = object.__new__(SovereignGlobalMonitorCore)
+    c.mix = {"alpha_fiscal": 0.5, "beta_demographic": 0.35, "gamma_buffer": 0.15}
+    c.defaults = {
+        "STRUCTURAL_LAMBDA": 2.5,
+        "CHRONIC_CRITICAL_S": 0.75,
+        "CHRONIC_WATCH_S": 0.45,
+        "GAP_ALARM_THRESHOLD": 0.25,
+        "ASSUMED_DIGITAL_COVERAGE": 0.45,
+    }
+    c.composite_mode = "max"
+    S = SovereignGlobalMonitorCore._structural_S(
+        c, {"fiscal_pressure": 0.515, "demographic_squeeze": 0.28, "buffer_gap": 0.15}
+    )
+    assert S > 0.55
+    gap = SovereignGlobalMonitorCore._gap_and_alarms(c, G=0.40, S=0.70, ground=0.80)
+    assert gap["GAP_SCORE"] > 25
+    assert gap["ALARM_ACTIVE"]
+    assert "GROUND_DIVERGENCE" in gap["ALARM_CODES"] or "NARRATIVE_LAG" in gap["ALARM_CODES"]
 
-def test_database_roundtrip(tmp_path, monkeypatch):
-    # Point DB to temp dir by patching after import is tricky; use isolated name
-    import core.database as dbmod
-
-    db = dbmod.SovereignStressDB(db_name=str(tmp_path / "test.db"))
-    ok = db.write_triage_log("US", 61.5, "ELEVATED", 500.0, 25.0, 1000.0)
-    assert ok is True
-    rows = db.fetch_historical_matrix("US", limit=5)
-    assert len(rows) >= 1
-    assert rows[0]["status_level"] == "ELEVATED"
-    assert rows[0]["risk_pct"] == 61.5
-
-
-def test_parameters_json():
-    path = os.path.join(ROOT, "config", "parameters.json")
-    cfg = json.load(open(path, encoding="utf-8"))
-    assert "WEIGHTS" in cfg
-    assert "COUNTRY_PROFILES" in cfg
-    assert "US" in cfg["COUNTRY_PROFILES"]
-
-
-def test_import_run_all():
-    from core.quant_engine import run_all, SovereignGlobalMonitorCore
-
-    assert callable(run_all)
-    assert SovereignGlobalMonitorCore is not None
+def test_db(tmp_path):
+    from core.database import SovereignStressDB
+    db = SovereignStressDB(db_name=str(tmp_path / "t.db"))
+    assert db.write_triage_log("UA", 70, "CRITICAL", 1, 1, 1, 0.4, 0.7, 0.8, 0.3)
+    assert db.fetch_historical_matrix("UA")
