@@ -1,0 +1,18 @@
+Paste into GitHub → repo → About (gear icon):
+
+Short description (≤350 chars):
+Hybrid early-warning radar: official market (G) next to structural priors (S) and five ground proxies (conflict, food, migration, mortality, physical). Surfaces GAP when markets look calm but land/structural load does not. Research tool — not investment advice.
+
+Website: (optional) leave empty or your docs
+
+Topics (add one by one):
+osint
+python
+early-warning
+risk-monitoring
+open-source
+macro
+streamlit
+fastapi
+conflict-analysis
+ukraine
