@@ -1,0 +1,7 @@
+[
+  "tests/test_smoke.py::test_config_five_ground",
+  "tests/test_smoke.py::test_db",
+  "tests/test_smoke.py::test_ground_automator_without_keys",
+  "tests/test_smoke.py::test_structural_and_gap_logic",
+  "tests/test_smoke.py::test_syntax"
+]
