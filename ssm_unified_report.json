@@ -1,0 +1,617 @@
+{
+  "HEADER": "SSM_HYBRID_GROUND_PASSPORT",
+  "VERSION": "31.1",
+  "DISCLAIMER": "Hybrid radar. Ground defaults to priors; ACLED optional. Not investment advice. Not a full informal-economy census.",
+  "METHODOLOGY": {
+    "OFFICIAL_G": "SMH/DBB/USDT + change-point anti-drift",
+    "STRUCTURAL_S": "S=1-exp(-λ(αF+βD+γB))",
+    "GROUND": "SovereignGroundAutomator: 5 signals, prior-first, ACLED if keys",
+    "GAP": "max(S, ground) − G",
+    "DISPLAY_R": "max(G,S) + small ground lift"
+  },
+  "TIMESTAMP_UTC": "2026-09-21 15:38:08",
+  "WEIGHTS": {
+    "w_smh": 0.35,
+    "w_metals": 0.25,
+    "w_flow": 0.2,
+    "w_stale": 0.1,
+    "w_ground": 0.1
+  },
+  "STRUCTURAL_MIX": {
+    "alpha_fiscal": 0.5,
+    "beta_demographic": 0.35,
+    "gamma_buffer": 0.15
+  },
+  "COMPOSITE_MODE": "max",
+  "ASSUMED_DIGITAL_COVERAGE": 0.45,
+  "DATA_DYNAMIC_FEEDS": [
+    {
+      "COUNTRY": "US",
+      "TIMESTAMP_UTC": "2026-09-21 15:37:40",
+      "DISPLAY_SCORE": 55.26,
+      "STATUS": "ELEVATED",
+      "OFFICIAL": {
+        "GLOBAL_REGIME_SCORE": 55.26,
+        "SMH": 591.34,
+        "DBB": 25.87,
+        "SMH_SOURCE": "LIVE",
+        "DBB_SOURCE": "LIVE",
+        "USDT_MEDIAN": 500.0,
+        "NETWORK": "FEED_OK",
+        "REGIME_MARKET": "normal",
+        "STRUCTURAL_BREAK_SMH": false,
+        "STRUCTURAL_BREAK_DBB": false
+      },
+      "STRUCTURAL": {
+        "LOCAL_STRUCTURAL_SCORE": 36.48,
+        "LOCAL_OVERLAY": "NONE",
+        "PRIOR_NOTE": "Expert prior — not P(default)"
+      },
+      "GROUND": {
+        "GROUND_INDEX": 7.65,
+        "MODE": "hybrid",
+        "LIVE_CHANNELS": 1,
+        "SIGNALS": {
+          "conflict": {
+            "score": 5.0,
+            "source": "prior",
+            "quality": "prior_only"
+          },
+          "food": {
+            "score": 10.0,
+            "source": "prior",
+            "quality": "prior_only"
+          },
+          "migration": {
+            "score": 5.0,
+            "source": "prior",
+            "quality": "prior_only"
+          },
+          "mortality": {
+            "score": 8.0,
+            "source": "prior",
+            "quality": "prior_only"
+          },
+          "physical": {
+            "score": 11.0,
+            "source": "gdacs_probe",
+            "quality": "public_api"
+          }
+        },
+        "NOTE": "Ground layer defaults to LOCAL_PRIORS. Paste ACLED_EMAIL + ACLED_KEY (or ACLED_API_KEY) in API_KEYS_VAULT for live conflict. Missing keys do NOT zero-out high-stress countries — priors preserve chronic load."
+      },
+      "COMPARISON": {
+        "OFFICIAL_LAYER": 55.26,
+        "ALTERNATIVE_LAYER": 36.48,
+        "GAP_SCORE": 0.0,
+        "ASSUMED_DIGITAL_COVERAGE": 0.45,
+        "ALARM_CODES": [],
+        "ALARM_ACTIVE": false,
+        "WHY": "Gap = max(structural, ground) − market regime. Positive gap: official/market calm while land/structural load is higher."
+      },
+      "DRIVERS": {
+        "tech_stress": 0.3055,
+        "materials_deficit": 0.0673,
+        "stablecoin_flow": 0.0,
+        "fiscal_prior": 0.35,
+        "demographic_prior": 0.01
+      },
+      "COMPOSITE_MODE": "max"
+    },
+    {
+      "COUNTRY": "UA",
+      "TIMESTAMP_UTC": "2026-09-21 15:37:47",
+      "DISPLAY_SCORE": 61.52,
+      "STATUS": "ELEVATED",
+      "OFFICIAL": {
+        "GLOBAL_REGIME_SCORE": 54.71,
+        "SMH": 591.34,
+        "DBB": 25.87,
+        "SMH_SOURCE": "LIVE",
+        "DBB_SOURCE": "LIVE",
+        "USDT_MEDIAN": 333.99,
+        "NETWORK": "FEED_OK",
+        "REGIME_MARKET": "normal",
+        "STRUCTURAL_BREAK_SMH": false,
+        "STRUCTURAL_BREAK_DBB": false
+      },
+      "STRUCTURAL": {
+        "LOCAL_STRUCTURAL_SCORE": 61.13,
+        "LOCAL_OVERLAY": "WATCH",
+        "PRIOR_NOTE": "Expert prior + wartime ground load — not calibrated default probability"
+      },
+      "GROUND": {
+        "GROUND_INDEX": 63.7,
+        "MODE": "hybrid",
+        "LIVE_CHANNELS": 1,
+        "SIGNALS": {
+          "conflict": {
+            "score": 85.0,
+            "source": "prior",
+            "quality": "prior_only"
+          },
+          "food": {
+            "score": 45.0,
+            "source": "prior",
+            "quality": "prior_only"
+          },
+          "migration": {
+            "score": 75.0,
+            "source": "prior",
+            "quality": "prior_only"
+          },
+          "mortality": {
+            "score": 55.0,
+            "source": "prior",
+            "quality": "prior_only"
+          },
+          "physical": {
+            "score": 51.0,
+            "source": "gdacs_probe",
+            "quality": "public_api"
+          }
+        },
+        "NOTE": "Ground layer defaults to LOCAL_PRIORS. Paste ACLED_EMAIL + ACLED_KEY (or ACLED_API_KEY) in API_KEYS_VAULT for live conflict. Missing keys do NOT zero-out high-stress countries — priors preserve chronic load."
+      },
+      "COMPARISON": {
+        "OFFICIAL_LAYER": 54.71,
+        "ALTERNATIVE_LAYER": 63.7,
+        "GAP_SCORE": 8.99,
+        "ASSUMED_DIGITAL_COVERAGE": 0.45,
+        "ALARM_CODES": [
+          "GROUND_DIVERGENCE",
+          "LOW_DIGITAL_COVERAGE_WARNING"
+        ],
+        "ALARM_ACTIVE": true,
+        "WHY": "Gap = max(structural, ground) − market regime. Positive gap: official/market calm while land/structural load is higher."
+      },
+      "DRIVERS": {
+        "tech_stress": 0.3055,
+        "materials_deficit": 0.0,
+        "stablecoin_flow": 0.0,
+        "fiscal_prior": 0.515,
+        "demographic_prior": 0.28
+      },
+      "COMPOSITE_MODE": "max"
+    },
+    {
+      "COUNTRY": "DE",
+      "TIMESTAMP_UTC": "2026-09-21 15:37:50",
+      "DISPLAY_SCORE": 55.02,
+      "STATUS": "ELEVATED",
+      "OFFICIAL": {
+        "GLOBAL_REGIME_SCORE": 55.02,
+        "SMH": 591.34,
+        "DBB": 25.87,
+        "SMH_SOURCE": "LIVE",
+        "DBB_SOURCE": "LIVE",
+        "USDT_MEDIAN": 436.82,
+        "NETWORK": "FEED_OK",
+        "REGIME_MARKET": "normal",
+        "STRUCTURAL_BREAK_SMH": false,
+        "STRUCTURAL_BREAK_DBB": false
+      },
+      "STRUCTURAL": {
+        "LOCAL_STRUCTURAL_SCORE": 46.0,
+        "LOCAL_OVERLAY": "WATCH",
+        "PRIOR_NOTE": "Expert prior — not P(default)"
+      },
+      "GROUND": {
+        "GROUND_INDEX": 12.95,
+        "MODE": "hybrid",
+        "LIVE_CHANNELS": 1,
+        "SIGNALS": {
+          "conflict": {
+            "score": 5.0,
+            "source": "prior",
+            "quality": "prior_only"
+          },
+          "food": {
+            "score": 15.0,
+            "source": "prior",
+            "quality": "prior_only"
+          },
+          "migration": {
+            "score": 25.0,
+            "source": "prior",
+            "quality": "prior_only"
+          },
+          "mortality": {
+            "score": 10.0,
+            "source": "prior",
+            "quality": "prior_only"
+          },
+          "physical": {
+            "score": 11.0,
+            "source": "gdacs_probe",
+            "quality": "public_api"
+          }
+        },
+        "NOTE": "Ground layer defaults to LOCAL_PRIORS. Paste ACLED_EMAIL + ACLED_KEY (or ACLED_API_KEY) in API_KEYS_VAULT for live conflict. Missing keys do NOT zero-out high-stress countries — priors preserve chronic load."
+      },
+      "COMPARISON": {
+        "OFFICIAL_LAYER": 55.02,
+        "ALTERNATIVE_LAYER": 46.0,
+        "GAP_SCORE": 0.0,
+        "ASSUMED_DIGITAL_COVERAGE": 0.45,
+        "ALARM_CODES": [],
+        "ALARM_ACTIVE": false,
+        "WHY": "Gap = max(structural, ground) − market regime. Positive gap: official/market calm while land/structural load is higher."
+      },
+      "DRIVERS": {
+        "tech_stress": 0.3055,
+        "materials_deficit": 0.0373,
+        "stablecoin_flow": 0.0,
+        "fiscal_prior": 0.45,
+        "demographic_prior": 0.04
+      },
+      "COMPOSITE_MODE": "max"
+    },
+    {
+      "COUNTRY": "GB",
+      "TIMESTAMP_UTC": "2026-09-21 15:37:54",
+      "DISPLAY_SCORE": 55.1,
+      "STATUS": "ELEVATED",
+      "OFFICIAL": {
+        "GLOBAL_REGIME_SCORE": 55.1,
+        "SMH": 591.34,
+        "DBB": 25.87,
+        "SMH_SOURCE": "LIVE",
+        "DBB_SOURCE": "LIVE",
+        "USDT_MEDIAN": 480.12,
+        "NETWORK": "FEED_OK",
+        "REGIME_MARKET": "normal",
+        "STRUCTURAL_BREAK_SMH": false,
+        "STRUCTURAL_BREAK_DBB": false
+      },
+      "STRUCTURAL": {
+        "LOCAL_STRUCTURAL_SCORE": 43.94,
+        "LOCAL_OVERLAY": "NONE",
+        "PRIOR_NOTE": "Expert prior — not P(default)"
+      },
+      "GROUND": {
+        "GROUND_INDEX": 13.25,
+        "MODE": "hybrid",
+        "LIVE_CHANNELS": 1,
+        "SIGNALS": {
+          "conflict": {
+            "score": 5.0,
+            "source": "prior",
+            "quality": "prior_only"
+          },
+          "food": {
+            "score": 18.0,
+            "source": "prior",
+            "quality": "prior_only"
+          },
+          "migration": {
+            "score": 20.0,
+            "source": "prior",
+            "quality": "prior_only"
+          },
+          "mortality": {
+            "score": 12.0,
+            "source": "prior",
+            "quality": "prior_only"
+          },
+          "physical": {
+            "score": 13.0,
+            "source": "gdacs_probe",
+            "quality": "public_api"
+          }
+        },
+        "NOTE": "Ground layer defaults to LOCAL_PRIORS. Paste ACLED_EMAIL + ACLED_KEY (or ACLED_API_KEY) in API_KEYS_VAULT for live conflict. Missing keys do NOT zero-out high-stress countries — priors preserve chronic load."
+      },
+      "COMPARISON": {
+        "OFFICIAL_LAYER": 55.1,
+        "ALTERNATIVE_LAYER": 43.94,
+        "GAP_SCORE": 0.0,
+        "ASSUMED_DIGITAL_COVERAGE": 0.45,
+        "ALARM_CODES": [],
+        "ALARM_ACTIVE": false,
+        "WHY": "Gap = max(structural, ground) − market regime. Positive gap: official/market calm while land/structural load is higher."
+      },
+      "DRIVERS": {
+        "tech_stress": 0.3055,
+        "materials_deficit": 0.0473,
+        "stablecoin_flow": 0.0,
+        "fiscal_prior": 0.43,
+        "demographic_prior": 0.03
+      },
+      "COMPOSITE_MODE": "max"
+    },
+    {
+      "COUNTRY": "CN",
+      "TIMESTAMP_UTC": "2026-09-21 15:37:59",
+      "DISPLAY_SCORE": 55.26,
+      "STATUS": "ELEVATED",
+      "OFFICIAL": {
+        "GLOBAL_REGIME_SCORE": 55.26,
+        "SMH": 591.34,
+        "DBB": 25.87,
+        "SMH_SOURCE": "LIVE",
+        "DBB_SOURCE": "LIVE",
+        "USDT_MEDIAN": 500.25,
+        "NETWORK": "FEED_OK",
+        "REGIME_MARKET": "normal",
+        "STRUCTURAL_BREAK_SMH": false,
+        "STRUCTURAL_BREAK_DBB": false
+      },
+      "STRUCTURAL": {
+        "LOCAL_STRUCTURAL_SCORE": 34.79,
+        "LOCAL_OVERLAY": "NONE",
+        "PRIOR_NOTE": "Expert prior — not P(default)"
+      },
+      "GROUND": {
+        "GROUND_INDEX": 16.95,
+        "MODE": "hybrid",
+        "LIVE_CHANNELS": 1,
+        "SIGNALS": {
+          "conflict": {
+            "score": 10.0,
+            "source": "prior",
+            "quality": "prior_only"
+          },
+          "food": {
+            "score": 20.0,
+            "source": "prior",
+            "quality": "prior_only"
+          },
+          "migration": {
+            "score": 15.0,
+            "source": "prior",
+            "quality": "prior_only"
+          },
+          "mortality": {
+            "score": 15.0,
+            "source": "prior",
+            "quality": "prior_only"
+          },
+          "physical": {
+            "score": 26.0,
+            "source": "gdacs_probe",
+            "quality": "public_api"
+          }
+        },
+        "NOTE": "Ground layer defaults to LOCAL_PRIORS. Paste ACLED_EMAIL + ACLED_KEY (or ACLED_API_KEY) in API_KEYS_VAULT for live conflict. Missing keys do NOT zero-out high-stress countries — priors preserve chronic load."
+      },
+      "COMPARISON": {
+        "OFFICIAL_LAYER": 55.26,
+        "ALTERNATIVE_LAYER": 34.79,
+        "GAP_SCORE": 0.0,
+        "ASSUMED_DIGITAL_COVERAGE": 0.45,
+        "ALARM_CODES": [],
+        "ALARM_ACTIVE": false,
+        "WHY": "Gap = max(structural, ground) − market regime. Positive gap: official/market calm while land/structural load is higher."
+      },
+      "DRIVERS": {
+        "tech_stress": 0.3055,
+        "materials_deficit": 0.0673,
+        "stablecoin_flow": 0.0,
+        "fiscal_prior": 0.28,
+        "demographic_prior": 0.08
+      },
+      "COMPOSITE_MODE": "max"
+    },
+    {
+      "COUNTRY": "PL",
+      "TIMESTAMP_UTC": "2026-09-21 15:38:02",
+      "DISPLAY_SCORE": 54.71,
+      "STATUS": "ELEVATED",
+      "OFFICIAL": {
+        "GLOBAL_REGIME_SCORE": 54.71,
+        "SMH": 591.34,
+        "DBB": 25.87,
+        "SMH_SOURCE": "LIVE",
+        "DBB_SOURCE": "LIVE",
+        "USDT_MEDIAN": 597.25,
+        "NETWORK": "FEED_OK",
+        "REGIME_MARKET": "normal",
+        "STRUCTURAL_BREAK_SMH": false,
+        "STRUCTURAL_BREAK_DBB": false
+      },
+      "STRUCTURAL": {
+        "LOCAL_STRUCTURAL_SCORE": 45.26,
+        "LOCAL_OVERLAY": "WATCH",
+        "PRIOR_NOTE": "Expert prior — not P(default)"
+      },
+      "GROUND": {
+        "GROUND_INDEX": 18.4,
+        "MODE": "hybrid",
+        "LIVE_CHANNELS": 1,
+        "SIGNALS": {
+          "conflict": {
+            "score": 8.0,
+            "source": "prior",
+            "quality": "prior_only"
+          },
+          "food": {
+            "score": 20.0,
+            "source": "prior",
+            "quality": "prior_only"
+          },
+          "migration": {
+            "score": 40.0,
+            "source": "prior",
+            "quality": "prior_only"
+          },
+          "mortality": {
+            "score": 12.0,
+            "source": "prior",
+            "quality": "prior_only"
+          },
+          "physical": {
+            "score": 13.0,
+            "source": "gdacs_probe",
+            "quality": "public_api"
+          }
+        },
+        "NOTE": "Ground layer defaults to LOCAL_PRIORS. Paste ACLED_EMAIL + ACLED_KEY (or ACLED_API_KEY) in API_KEYS_VAULT for live conflict. Missing keys do NOT zero-out high-stress countries — priors preserve chronic load."
+      },
+      "COMPARISON": {
+        "OFFICIAL_LAYER": 54.71,
+        "ALTERNATIVE_LAYER": 45.26,
+        "GAP_SCORE": 0.0,
+        "ASSUMED_DIGITAL_COVERAGE": 0.45,
+        "ALARM_CODES": [],
+        "ALARM_ACTIVE": false,
+        "WHY": "Gap = max(structural, ground) − market regime. Positive gap: official/market calm while land/structural load is higher."
+      },
+      "DRIVERS": {
+        "tech_stress": 0.3055,
+        "materials_deficit": 0.0,
+        "stablecoin_flow": 0.0,
+        "fiscal_prior": 0.41,
+        "demographic_prior": 0.06
+      },
+      "COMPOSITE_MODE": "max"
+    },
+    {
+      "COUNTRY": "RU",
+      "TIMESTAMP_UTC": "2026-09-21 15:38:04",
+      "DISPLAY_SCORE": 54.71,
+      "STATUS": "ELEVATED",
+      "OFFICIAL": {
+        "GLOBAL_REGIME_SCORE": 54.71,
+        "SMH": 591.34,
+        "DBB": 25.87,
+        "SMH_SOURCE": "LIVE",
+        "DBB_SOURCE": "LIVE",
+        "USDT_MEDIAN": 673.7,
+        "NETWORK": "FEED_OK",
+        "REGIME_MARKET": "normal",
+        "STRUCTURAL_BREAK_SMH": false,
+        "STRUCTURAL_BREAK_DBB": false
+      },
+      "STRUCTURAL": {
+        "LOCAL_STRUCTURAL_SCORE": 51.08,
+        "LOCAL_OVERLAY": "WATCH",
+        "PRIOR_NOTE": "Expert prior — not P(default)"
+      },
+      "GROUND": {
+        "GROUND_INDEX": 43.7,
+        "MODE": "hybrid",
+        "LIVE_CHANNELS": 1,
+        "SIGNALS": {
+          "conflict": {
+            "score": 70.0,
+            "source": "prior",
+            "quality": "prior_only"
+          },
+          "food": {
+            "score": 35.0,
+            "source": "prior",
+            "quality": "prior_only"
+          },
+          "migration": {
+            "score": 35.0,
+            "source": "prior",
+            "quality": "prior_only"
+          },
+          "mortality": {
+            "score": 40.0,
+            "source": "prior",
+            "quality": "prior_only"
+          },
+          "physical": {
+            "score": 31.0,
+            "source": "gdacs_probe",
+            "quality": "public_api"
+          }
+        },
+        "NOTE": "Ground layer defaults to LOCAL_PRIORS. Paste ACLED_EMAIL + ACLED_KEY (or ACLED_API_KEY) in API_KEYS_VAULT for live conflict. Missing keys do NOT zero-out high-stress countries — priors preserve chronic load."
+      },
+      "COMPARISON": {
+        "OFFICIAL_LAYER": 54.71,
+        "ALTERNATIVE_LAYER": 51.08,
+        "GAP_SCORE": 0.0,
+        "ASSUMED_DIGITAL_COVERAGE": 0.45,
+        "ALARM_CODES": [],
+        "ALARM_ACTIVE": false,
+        "WHY": "Gap = max(structural, ground) − market regime. Positive gap: official/market calm while land/structural load is higher."
+      },
+      "DRIVERS": {
+        "tech_stress": 0.3055,
+        "materials_deficit": 0.0,
+        "stablecoin_flow": 0.0,
+        "fiscal_prior": 0.38,
+        "demographic_prior": 0.18
+      },
+      "COMPOSITE_MODE": "max"
+    },
+    {
+      "COUNTRY": "IL",
+      "TIMESTAMP_UTC": "2026-09-21 15:38:08",
+      "DISPLAY_SCORE": 54.77,
+      "STATUS": "ELEVATED",
+      "OFFICIAL": {
+        "GLOBAL_REGIME_SCORE": 54.77,
+        "SMH": 591.34,
+        "DBB": 25.87,
+        "SMH_SOURCE": "LIVE",
+        "DBB_SOURCE": "LIVE",
+        "USDT_MEDIAN": 721.6,
+        "NETWORK": "FEED_OK",
+        "REGIME_MARKET": "normal",
+        "STRUCTURAL_BREAK_SMH": false,
+        "STRUCTURAL_BREAK_DBB": false
+      },
+      "STRUCTURAL": {
+        "LOCAL_STRUCTURAL_SCORE": 50.84,
+        "LOCAL_OVERLAY": "WATCH",
+        "PRIOR_NOTE": "Expert prior — not P(default)"
+      },
+      "GROUND": {
+        "GROUND_INDEX": 38.2,
+        "MODE": "hybrid",
+        "LIVE_CHANNELS": 1,
+        "SIGNALS": {
+          "conflict": {
+            "score": 65.0,
+            "source": "prior",
+            "quality": "prior_only"
+          },
+          "food": {
+            "score": 25.0,
+            "source": "prior",
+            "quality": "prior_only"
+          },
+          "migration": {
+            "score": 30.0,
+            "source": "prior",
+            "quality": "prior_only"
+          },
+          "mortality": {
+            "score": 25.0,
+            "source": "prior",
+            "quality": "prior_only"
+          },
+          "physical": {
+            "score": 36.0,
+            "source": "gdacs_probe",
+            "quality": "public_api"
+          }
+        },
+        "NOTE": "Ground layer defaults to LOCAL_PRIORS. Paste ACLED_EMAIL + ACLED_KEY (or ACLED_API_KEY) in API_KEYS_VAULT for live conflict. Missing keys do NOT zero-out high-stress countries — priors preserve chronic load."
+      },
+      "COMPARISON": {
+        "OFFICIAL_LAYER": 54.77,
+        "ALTERNATIVE_LAYER": 50.84,
+        "GAP_SCORE": 0.0,
+        "ASSUMED_DIGITAL_COVERAGE": 0.45,
+        "ALARM_CODES": [],
+        "ALARM_ACTIVE": false,
+        "WHY": "Gap = max(structural, ground) − market regime. Positive gap: official/market calm while land/structural load is higher."
+      },
+      "DRIVERS": {
+        "tech_stress": 0.3055,
+        "materials_deficit": 0.0073,
+        "stablecoin_flow": 0.0,
+        "fiscal_prior": 0.46,
+        "demographic_prior": 0.12
+      },
+      "COMPOSITE_MODE": "max"
+    }
+  ],
+  "COUNTRIES_PROCESSED": 8
+}
