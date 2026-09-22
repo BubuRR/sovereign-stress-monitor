@@ -1,17 +1,24 @@
 {
-  "VERSION": "31.1",
+  "VERSION": "32.4",
   "GLOBAL_DEFAULTS": {
     "ALERT_THRESHOLD": 70.0,
     "ELEVATED_THRESHOLD": 55.0,
     "CHRONIC_CRITICAL_S": 0.75,
     "CHRONIC_WATCH_S": 0.45,
-    "GAP_ALARM_THRESHOLD": 0.25,
+    "GAP_ALARM_THRESHOLD": 0.05,
     "SIGMOID_STEEPNESS": 1.2,
     "STRUCTURAL_LAMBDA": 2.5,
     "SMH_50D_AVERAGE_NORM": 550.0,
     "DBB_50D_AVERAGE_NORM": 25.0,
     "BASE_BLIND_SPOT": 0.1,
-    "ASSUMED_DIGITAL_COVERAGE": 0.45
+    "ASSUMED_DIGITAL_COVERAGE": 0.45,
+    "HARD_BASELINE_SMH": 280.0,
+    "HARD_BASELINE_DBB": 16.5,
+    "PHYSICAL_DEFICIT_WEIGHT": 0.35,
+    "DEFICIT_SOFT_CAP": 1.5,
+    "LAND_CRITICAL": 0.7,
+    "LAND_WATCH": 0.45,
+    "NARRATIVE_GAP_AI_THRESHOLD": 5.0
   },
   "WEIGHTS": {
     "w_smh": 0.35,
@@ -64,7 +71,12 @@
       "ACLED_KEY": "PASTE_ACLED_PASSWORD_OR_KEY_HERE",
       "FRED_API_KEY": "PASTE_FRED_KEY_OPTIONAL",
       "ACLED_REGISTERED_EMAIL": "PASTE_ACLED_EMAIL_HERE",
-      "ACLED_API_KEY": "PASTE_ACLED_PASSWORD_OR_KEY_HERE"
+      "ACLED_API_KEY": "PASTE_ACLED_PASSWORD_OR_KEY_HERE",
+      "OPENAI_API_KEY": "",
+      "XAI_API_KEY": "",
+      "_README": "Prefer environment variables. Never commit real keys.",
+      "GROQ_API_KEY": "",
+      "OPENROUTER_API_KEY": ""
     }
   },
   "LOCAL_PRIORS": {
@@ -164,5 +176,17 @@
       "physical_base": 0.35,
       "note": "Expert prior — not P(default)"
     }
+  },
+  "AI_ADVISORY": {
+    "enabled": true,
+    "provider": "openrouter",
+    "endpoint": "https://openrouter.ai/api/v1/chat/completions",
+    "model": "openrouter/free",
+    "mode": "compare",
+    "never_override_scores": true,
+    "max_tokens": 1000,
+    "temperature": 0.3,
+    "note": "OpenRouter free. Env OPENROUTER_API_KEY. Decompile when Gap>=5 or LAND/NARRATIVE alarms.",
+    "narrative_gap_threshold": 5.0
   }
 }
