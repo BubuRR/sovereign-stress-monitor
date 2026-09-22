@@ -1,5 +1,5 @@
 {
-  "VERSION": "32.4",
+  "VERSION": "32.4.2",
   "GLOBAL_DEFAULTS": {
     "ALERT_THRESHOLD": 70.0,
     "ELEVATED_THRESHOLD": 55.0,
@@ -184,9 +184,13 @@
     "model": "openrouter/free",
     "mode": "compare",
     "never_override_scores": true,
-    "max_tokens": 1000,
-    "temperature": 0.3,
-    "note": "OpenRouter free. Env OPENROUTER_API_KEY. Decompile when Gap>=5 or LAND/NARRATIVE alarms.",
-    "narrative_gap_threshold": 5.0
+    "max_tokens": 2000,
+    "temperature": 0.35,
+    "note": "Bilingual EN then RU, expanded + forecast. Env OPENROUTER_API_KEY.",
+    "narrative_gap_threshold": 5.0,
+    "output_languages": [
+      "en",
+      "ru"
+    ]
   }
 }
