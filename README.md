@@ -1,5 +1,6 @@
-# Sovereign Stress Monitor (SSM) v32.2
+# Sovereign Stress Monitor (SSM) v32.4
 
+**Release line: v32.4** — hybrid G/S/Ground/LAND + Gap; optional OpenRouter advisory (env `OPENROUTER_API_KEY`). Sample report is regenerated with this version tag.
 Open hybrid **macro stress radar**: official market layer vs structural priors vs ground proxies, with an explicit **gap**.
 
 Not investment advice. Not a substitute for BlackRock Aladdin or Palantir.
