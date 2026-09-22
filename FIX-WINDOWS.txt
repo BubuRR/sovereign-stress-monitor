@@ -1,0 +1,16 @@
+PROBLEM: ruptures failed to build on Windows Python 3.14
+  (needs Microsoft C++ Build Tools)
+
+FIX: ruptures is OPTIONAL. requirements.txt no longer requires it.
+Engine uses numpy fallback for change-points.
+
+STEPS:
+1) Copy new requirements.txt + install.bat + start-simple.bat into project folder
+2) Double-click install.bat
+3) Double-click start-simple.bat
+4) Browser: http://localhost:8501
+
+Manual:
+  python -m pip install -r requirements.txt
+  python ssm_core.py
+  python -m streamlit run interface/app.py --server.port 8501
