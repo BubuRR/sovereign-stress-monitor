@@ -1,8 +1,13 @@
 {
   "HEADER": "SSM_HYBRID_GROUND_PASSPORT",
-  "VERSION": "32.0",
-  "AI_MODE": "off",
-  "AI_ADVISORY": null,
+  "VERSION": "32.4",
+  "AI_MODE": "compare",
+  "AI_ADVISORY": {
+    "role": "advisory_not_authoritative",
+    "status": "SKIPPED_NO_API_KEY",
+    "provider": "openrouter",
+    "hint": "Set OPENROUTER_API_KEY (or GROQ/OPENAI) in environment."
+  },
   "DISCLAIMER": "Hybrid radar. Ground defaults to priors; ACLED optional. Not investment advice. Not a full informal-economy census.",
   "METHODOLOGY": {
     "OFFICIAL_G": "SMH/DBB/USDT + change-point anti-drift",
@@ -13,7 +18,7 @@
     "GAP": "max(S, ground) − G",
     "DISPLAY_R": "max(G,S) + small ground lift"
   },
-  "TIMESTAMP_UTC": "2026-09-22 08:41:33",
+  "TIMESTAMP_UTC": "2026-09-22 18:29:36",
   "WEIGHTS": {
     "w_smh": 0.35,
     "w_metals": 0.25,
@@ -31,20 +36,20 @@
   "DATA_DYNAMIC_FEEDS": [
     {
       "COUNTRY": "US",
-      "TIMESTAMP_UTC": "2026-09-22 08:41:09",
-      "DISPLAY_SCORE": 59.51,
+      "TIMESTAMP_UTC": "2026-09-22 18:29:26",
+      "DISPLAY_SCORE": 56.24,
       "STATUS": "ELEVATED",
       "OFFICIAL": {
-        "GLOBAL_REGIME_SCORE": 59.51,
-        "SMH": 596.03,
-        "DBB": 25.88,
+        "GLOBAL_REGIME_SCORE": 56.24,
+        "SMH": 605.61,
+        "DBB": 26.06,
         "SMH_SOURCE": "LIVE",
         "DBB_SOURCE": "LIVE",
-        "USDT_MEDIAN": 1404.5,
+        "USDT_MEDIAN": 950.0,
         "NETWORK": "FEED_OK",
-        "REGIME_MARKET": "normal",
+        "REGIME_MARKET": "pre_crisis",
         "STRUCTURAL_BREAK_SMH": false,
-        "STRUCTURAL_BREAK_DBB": false
+        "STRUCTURAL_BREAK_DBB": true
       },
       "STRUCTURAL": {
         "LOCAL_STRUCTURAL_SCORE": 36.48,
@@ -91,12 +96,12 @@
       "HARD_BASELINE": {
         "HARD_BASELINE_SMH": 280.0,
         "HARD_BASELINE_DBB": 16.5,
-        "MATERIALS_PHYSICAL_DEFICIT": 0.379,
+        "MATERIALS_PHYSICAL_DEFICIT": 0.3863,
         "TECH_CRASH_VS_ANCHOR": 0.0,
-        "TECH_EXCESS_VS_ANCHOR": 0.3762
+        "TECH_EXCESS_VS_ANCHOR": 0.3876
       },
       "COMPARISON": {
-        "OFFICIAL_LAYER": 59.51,
+        "OFFICIAL_LAYER": 56.24,
         "ALTERNATIVE_LAYER": 36.48,
         "LAND_STRESS": 36.48,
         "GAP_SCORE": 0.0,
@@ -108,9 +113,9 @@
         "WHY": "Gap = max(structural, ground) − market regime. Positive gap: official/market calm while land/structural load is higher."
       },
       "DRIVERS": {
-        "tech_stress": 0.2537,
-        "materials_deficit": 0.0648,
-        "materials_physical_vs_anchor": 0.379,
+        "tech_stress": 0.0,
+        "materials_deficit": 0.0,
+        "materials_physical_vs_anchor": 0.3863,
         "stablecoin_flow": 0.0,
         "fiscal_prior": 0.35,
         "demographic_prior": 0.01
@@ -119,20 +124,20 @@
     },
     {
       "COUNTRY": "UA",
-      "TIMESTAMP_UTC": "2026-09-22 08:41:12",
+      "TIMESTAMP_UTC": "2026-09-22 18:29:27",
       "DISPLAY_SCORE": 61.52,
       "STATUS": "ELEVATED",
       "OFFICIAL": {
-        "GLOBAL_REGIME_SCORE": 59.0,
-        "SMH": 596.03,
-        "DBB": 25.88,
+        "GLOBAL_REGIME_SCORE": 56.24,
+        "SMH": 605.61,
+        "DBB": 26.06,
         "SMH_SOURCE": "LIVE",
         "DBB_SOURCE": "LIVE",
-        "USDT_MEDIAN": 1107.83,
+        "USDT_MEDIAN": 1464.68,
         "NETWORK": "FEED_OK",
-        "REGIME_MARKET": "normal",
+        "REGIME_MARKET": "pre_crisis",
         "STRUCTURAL_BREAK_SMH": false,
-        "STRUCTURAL_BREAK_DBB": false
+        "STRUCTURAL_BREAK_DBB": true
       },
       "STRUCTURAL": {
         "LOCAL_STRUCTURAL_SCORE": 61.13,
@@ -179,17 +184,18 @@
       "HARD_BASELINE": {
         "HARD_BASELINE_SMH": 280.0,
         "HARD_BASELINE_DBB": 16.5,
-        "MATERIALS_PHYSICAL_DEFICIT": 0.379,
+        "MATERIALS_PHYSICAL_DEFICIT": 0.3863,
         "TECH_CRASH_VS_ANCHOR": 0.0,
-        "TECH_EXCESS_VS_ANCHOR": 0.3762
+        "TECH_EXCESS_VS_ANCHOR": 0.3876
       },
       "COMPARISON": {
-        "OFFICIAL_LAYER": 59.0,
+        "OFFICIAL_LAYER": 56.24,
         "ALTERNATIVE_LAYER": 63.7,
         "LAND_STRESS": 63.7,
-        "GAP_SCORE": 4.7,
+        "GAP_SCORE": 7.46,
         "ASSUMED_DIGITAL_COVERAGE": 0.45,
         "ALARM_CODES": [
+          "NARRATIVE_LAG",
           "LOW_DIGITAL_COVERAGE_WARNING",
           "LAND_WATCH",
           "PHYSICAL_DEFICIT_VS_HARD_BASELINE"
@@ -198,9 +204,9 @@
         "WHY": "Gap = max(structural, ground) − market regime. Positive gap: official/market calm while land/structural load is higher."
       },
       "DRIVERS": {
-        "tech_stress": 0.2537,
+        "tech_stress": 0.0,
         "materials_deficit": 0.0,
-        "materials_physical_vs_anchor": 0.379,
+        "materials_physical_vs_anchor": 0.3863,
         "stablecoin_flow": 0.0,
         "fiscal_prior": 0.515,
         "demographic_prior": 0.28
@@ -209,20 +215,20 @@
     },
     {
       "COUNTRY": "DE",
-      "TIMESTAMP_UTC": "2026-09-22 08:41:15",
-      "DISPLAY_SCORE": 59.28,
+      "TIMESTAMP_UTC": "2026-09-22 18:29:28",
+      "DISPLAY_SCORE": 56.24,
       "STATUS": "ELEVATED",
       "OFFICIAL": {
-        "GLOBAL_REGIME_SCORE": 59.28,
-        "SMH": 596.03,
-        "DBB": 25.88,
+        "GLOBAL_REGIME_SCORE": 56.24,
+        "SMH": 605.61,
+        "DBB": 26.06,
         "SMH_SOURCE": "LIVE",
         "DBB_SOURCE": "LIVE",
-        "USDT_MEDIAN": 1200.0,
+        "USDT_MEDIAN": 1611.43,
         "NETWORK": "FEED_OK",
-        "REGIME_MARKET": "normal",
+        "REGIME_MARKET": "pre_crisis",
         "STRUCTURAL_BREAK_SMH": false,
-        "STRUCTURAL_BREAK_DBB": false
+        "STRUCTURAL_BREAK_DBB": true
       },
       "STRUCTURAL": {
         "LOCAL_STRUCTURAL_SCORE": 46.0,
@@ -269,12 +275,12 @@
       "HARD_BASELINE": {
         "HARD_BASELINE_SMH": 280.0,
         "HARD_BASELINE_DBB": 16.5,
-        "MATERIALS_PHYSICAL_DEFICIT": 0.379,
+        "MATERIALS_PHYSICAL_DEFICIT": 0.3863,
         "TECH_CRASH_VS_ANCHOR": 0.0,
-        "TECH_EXCESS_VS_ANCHOR": 0.3762
+        "TECH_EXCESS_VS_ANCHOR": 0.3876
       },
       "COMPARISON": {
-        "OFFICIAL_LAYER": 59.28,
+        "OFFICIAL_LAYER": 56.24,
         "ALTERNATIVE_LAYER": 46.0,
         "LAND_STRESS": 46.0,
         "GAP_SCORE": 0.0,
@@ -287,9 +293,9 @@
         "WHY": "Gap = max(structural, ground) − market regime. Positive gap: official/market calm while land/structural load is higher."
       },
       "DRIVERS": {
-        "tech_stress": 0.2537,
-        "materials_deficit": 0.0348,
-        "materials_physical_vs_anchor": 0.379,
+        "tech_stress": 0.0,
+        "materials_deficit": 0.0,
+        "materials_physical_vs_anchor": 0.3863,
         "stablecoin_flow": 0.0,
         "fiscal_prior": 0.45,
         "demographic_prior": 0.04
@@ -298,20 +304,20 @@
     },
     {
       "COUNTRY": "GB",
-      "TIMESTAMP_UTC": "2026-09-22 08:41:18",
-      "DISPLAY_SCORE": 59.36,
+      "TIMESTAMP_UTC": "2026-09-22 18:29:30",
+      "DISPLAY_SCORE": 56.24,
       "STATUS": "ELEVATED",
       "OFFICIAL": {
-        "GLOBAL_REGIME_SCORE": 59.36,
-        "SMH": 596.03,
-        "DBB": 25.88,
+        "GLOBAL_REGIME_SCORE": 56.24,
+        "SMH": 605.61,
+        "DBB": 26.06,
         "SMH_SOURCE": "LIVE",
         "DBB_SOURCE": "LIVE",
-        "USDT_MEDIAN": 1086.77,
+        "USDT_MEDIAN": 1549.25,
         "NETWORK": "FEED_OK",
-        "REGIME_MARKET": "normal",
+        "REGIME_MARKET": "pre_crisis",
         "STRUCTURAL_BREAK_SMH": false,
-        "STRUCTURAL_BREAK_DBB": false
+        "STRUCTURAL_BREAK_DBB": true
       },
       "STRUCTURAL": {
         "LOCAL_STRUCTURAL_SCORE": 43.94,
@@ -358,12 +364,12 @@
       "HARD_BASELINE": {
         "HARD_BASELINE_SMH": 280.0,
         "HARD_BASELINE_DBB": 16.5,
-        "MATERIALS_PHYSICAL_DEFICIT": 0.379,
+        "MATERIALS_PHYSICAL_DEFICIT": 0.3863,
         "TECH_CRASH_VS_ANCHOR": 0.0,
-        "TECH_EXCESS_VS_ANCHOR": 0.3762
+        "TECH_EXCESS_VS_ANCHOR": 0.3876
       },
       "COMPARISON": {
-        "OFFICIAL_LAYER": 59.36,
+        "OFFICIAL_LAYER": 56.24,
         "ALTERNATIVE_LAYER": 43.94,
         "LAND_STRESS": 43.94,
         "GAP_SCORE": 0.0,
@@ -375,9 +381,9 @@
         "WHY": "Gap = max(structural, ground) − market regime. Positive gap: official/market calm while land/structural load is higher."
       },
       "DRIVERS": {
-        "tech_stress": 0.2537,
-        "materials_deficit": 0.0448,
-        "materials_physical_vs_anchor": 0.379,
+        "tech_stress": 0.0,
+        "materials_deficit": 0.0,
+        "materials_physical_vs_anchor": 0.3863,
         "stablecoin_flow": 0.0,
         "fiscal_prior": 0.43,
         "demographic_prior": 0.03
@@ -386,20 +392,20 @@
     },
     {
       "COUNTRY": "CN",
-      "TIMESTAMP_UTC": "2026-09-22 08:41:22",
-      "DISPLAY_SCORE": 59.51,
+      "TIMESTAMP_UTC": "2026-09-22 18:29:32",
+      "DISPLAY_SCORE": 56.24,
       "STATUS": "ELEVATED",
       "OFFICIAL": {
-        "GLOBAL_REGIME_SCORE": 59.51,
-        "SMH": 596.03,
-        "DBB": 25.88,
+        "GLOBAL_REGIME_SCORE": 56.24,
+        "SMH": 605.61,
+        "DBB": 26.06,
         "SMH_SOURCE": "LIVE",
         "DBB_SOURCE": "LIVE",
-        "USDT_MEDIAN": 1133.91,
+        "USDT_MEDIAN": 1464.68,
         "NETWORK": "FEED_OK",
-        "REGIME_MARKET": "normal",
+        "REGIME_MARKET": "pre_crisis",
         "STRUCTURAL_BREAK_SMH": false,
-        "STRUCTURAL_BREAK_DBB": false
+        "STRUCTURAL_BREAK_DBB": true
       },
       "STRUCTURAL": {
         "LOCAL_STRUCTURAL_SCORE": 34.79,
@@ -446,12 +452,12 @@
       "HARD_BASELINE": {
         "HARD_BASELINE_SMH": 280.0,
         "HARD_BASELINE_DBB": 16.5,
-        "MATERIALS_PHYSICAL_DEFICIT": 0.379,
+        "MATERIALS_PHYSICAL_DEFICIT": 0.3863,
         "TECH_CRASH_VS_ANCHOR": 0.0,
-        "TECH_EXCESS_VS_ANCHOR": 0.3762
+        "TECH_EXCESS_VS_ANCHOR": 0.3876
       },
       "COMPARISON": {
-        "OFFICIAL_LAYER": 59.51,
+        "OFFICIAL_LAYER": 56.24,
         "ALTERNATIVE_LAYER": 34.79,
         "LAND_STRESS": 34.79,
         "GAP_SCORE": 0.0,
@@ -463,9 +469,9 @@
         "WHY": "Gap = max(structural, ground) − market regime. Positive gap: official/market calm while land/structural load is higher."
       },
       "DRIVERS": {
-        "tech_stress": 0.2537,
-        "materials_deficit": 0.0648,
-        "materials_physical_vs_anchor": 0.379,
+        "tech_stress": 0.0,
+        "materials_deficit": 0.0,
+        "materials_physical_vs_anchor": 0.3863,
         "stablecoin_flow": 0.0,
         "fiscal_prior": 0.28,
         "demographic_prior": 0.08
@@ -474,20 +480,20 @@
     },
     {
       "COUNTRY": "PL",
-      "TIMESTAMP_UTC": "2026-09-22 08:41:27",
-      "DISPLAY_SCORE": 59.0,
+      "TIMESTAMP_UTC": "2026-09-22 18:29:33",
+      "DISPLAY_SCORE": 56.24,
       "STATUS": "ELEVATED",
       "OFFICIAL": {
-        "GLOBAL_REGIME_SCORE": 59.0,
-        "SMH": 596.03,
-        "DBB": 25.88,
+        "GLOBAL_REGIME_SCORE": 56.24,
+        "SMH": 605.61,
+        "DBB": 26.06,
         "SMH_SOURCE": "LIVE",
         "DBB_SOURCE": "LIVE",
-        "USDT_MEDIAN": 1300.0,
+        "USDT_MEDIAN": 1622.87,
         "NETWORK": "FEED_OK",
-        "REGIME_MARKET": "normal",
+        "REGIME_MARKET": "pre_crisis",
         "STRUCTURAL_BREAK_SMH": false,
-        "STRUCTURAL_BREAK_DBB": false
+        "STRUCTURAL_BREAK_DBB": true
       },
       "STRUCTURAL": {
         "LOCAL_STRUCTURAL_SCORE": 45.26,
@@ -534,12 +540,12 @@
       "HARD_BASELINE": {
         "HARD_BASELINE_SMH": 280.0,
         "HARD_BASELINE_DBB": 16.5,
-        "MATERIALS_PHYSICAL_DEFICIT": 0.379,
+        "MATERIALS_PHYSICAL_DEFICIT": 0.3863,
         "TECH_CRASH_VS_ANCHOR": 0.0,
-        "TECH_EXCESS_VS_ANCHOR": 0.3762
+        "TECH_EXCESS_VS_ANCHOR": 0.3876
       },
       "COMPARISON": {
-        "OFFICIAL_LAYER": 59.0,
+        "OFFICIAL_LAYER": 56.24,
         "ALTERNATIVE_LAYER": 45.26,
         "LAND_STRESS": 45.26,
         "GAP_SCORE": 0.0,
@@ -552,9 +558,9 @@
         "WHY": "Gap = max(structural, ground) − market regime. Positive gap: official/market calm while land/structural load is higher."
       },
       "DRIVERS": {
-        "tech_stress": 0.2537,
+        "tech_stress": 0.0,
         "materials_deficit": 0.0,
-        "materials_physical_vs_anchor": 0.379,
+        "materials_physical_vs_anchor": 0.3863,
         "stablecoin_flow": 0.0,
         "fiscal_prior": 0.41,
         "demographic_prior": 0.06
@@ -563,20 +569,20 @@
     },
     {
       "COUNTRY": "RU",
-      "TIMESTAMP_UTC": "2026-09-22 08:41:29",
-      "DISPLAY_SCORE": 59.0,
+      "TIMESTAMP_UTC": "2026-09-22 18:29:35",
+      "DISPLAY_SCORE": 56.24,
       "STATUS": "ELEVATED",
       "OFFICIAL": {
-        "GLOBAL_REGIME_SCORE": 59.0,
-        "SMH": 596.03,
-        "DBB": 25.88,
+        "GLOBAL_REGIME_SCORE": 56.24,
+        "SMH": 605.61,
+        "DBB": 26.06,
         "SMH_SOURCE": "LIVE",
         "DBB_SOURCE": "LIVE",
-        "USDT_MEDIAN": 1286.0,
+        "USDT_MEDIAN": 1809.25,
         "NETWORK": "FEED_OK",
-        "REGIME_MARKET": "normal",
+        "REGIME_MARKET": "pre_crisis",
         "STRUCTURAL_BREAK_SMH": false,
-        "STRUCTURAL_BREAK_DBB": false
+        "STRUCTURAL_BREAK_DBB": true
       },
       "STRUCTURAL": {
         "LOCAL_STRUCTURAL_SCORE": 51.08,
@@ -623,12 +629,12 @@
       "HARD_BASELINE": {
         "HARD_BASELINE_SMH": 280.0,
         "HARD_BASELINE_DBB": 16.5,
-        "MATERIALS_PHYSICAL_DEFICIT": 0.379,
+        "MATERIALS_PHYSICAL_DEFICIT": 0.3863,
         "TECH_CRASH_VS_ANCHOR": 0.0,
-        "TECH_EXCESS_VS_ANCHOR": 0.3762
+        "TECH_EXCESS_VS_ANCHOR": 0.3876
       },
       "COMPARISON": {
-        "OFFICIAL_LAYER": 59.0,
+        "OFFICIAL_LAYER": 56.24,
         "ALTERNATIVE_LAYER": 51.08,
         "LAND_STRESS": 51.08,
         "GAP_SCORE": 0.0,
@@ -641,9 +647,9 @@
         "WHY": "Gap = max(structural, ground) − market regime. Positive gap: official/market calm while land/structural load is higher."
       },
       "DRIVERS": {
-        "tech_stress": 0.2537,
+        "tech_stress": 0.0,
         "materials_deficit": 0.0,
-        "materials_physical_vs_anchor": 0.379,
+        "materials_physical_vs_anchor": 0.3863,
         "stablecoin_flow": 0.0,
         "fiscal_prior": 0.38,
         "demographic_prior": 0.18
@@ -652,20 +658,20 @@
     },
     {
       "COUNTRY": "IL",
-      "TIMESTAMP_UTC": "2026-09-22 08:41:33",
-      "DISPLAY_SCORE": 59.04,
+      "TIMESTAMP_UTC": "2026-09-22 18:29:36",
+      "DISPLAY_SCORE": 56.24,
       "STATUS": "ELEVATED",
       "OFFICIAL": {
-        "GLOBAL_REGIME_SCORE": 59.04,
-        "SMH": 596.03,
-        "DBB": 25.88,
+        "GLOBAL_REGIME_SCORE": 56.24,
+        "SMH": 605.61,
+        "DBB": 26.06,
         "SMH_SOURCE": "LIVE",
         "DBB_SOURCE": "LIVE",
-        "USDT_MEDIAN": 1160.0,
+        "USDT_MEDIAN": 1622.87,
         "NETWORK": "FEED_OK",
-        "REGIME_MARKET": "normal",
+        "REGIME_MARKET": "pre_crisis",
         "STRUCTURAL_BREAK_SMH": false,
-        "STRUCTURAL_BREAK_DBB": false
+        "STRUCTURAL_BREAK_DBB": true
       },
       "STRUCTURAL": {
         "LOCAL_STRUCTURAL_SCORE": 50.84,
@@ -712,12 +718,12 @@
       "HARD_BASELINE": {
         "HARD_BASELINE_SMH": 280.0,
         "HARD_BASELINE_DBB": 16.5,
-        "MATERIALS_PHYSICAL_DEFICIT": 0.379,
+        "MATERIALS_PHYSICAL_DEFICIT": 0.3863,
         "TECH_CRASH_VS_ANCHOR": 0.0,
-        "TECH_EXCESS_VS_ANCHOR": 0.3762
+        "TECH_EXCESS_VS_ANCHOR": 0.3876
       },
       "COMPARISON": {
-        "OFFICIAL_LAYER": 59.04,
+        "OFFICIAL_LAYER": 56.24,
         "ALTERNATIVE_LAYER": 50.84,
         "LAND_STRESS": 50.84,
         "GAP_SCORE": 0.0,
@@ -730,9 +736,9 @@
         "WHY": "Gap = max(structural, ground) − market regime. Positive gap: official/market calm while land/structural load is higher."
       },
       "DRIVERS": {
-        "tech_stress": 0.2537,
-        "materials_deficit": 0.0048,
-        "materials_physical_vs_anchor": 0.379,
+        "tech_stress": 0.0,
+        "materials_deficit": 0.0,
+        "materials_physical_vs_anchor": 0.3863,
         "stablecoin_flow": 0.0,
         "fiscal_prior": 0.46,
         "demographic_prior": 0.12
