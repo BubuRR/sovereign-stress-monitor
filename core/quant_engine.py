@@ -1,5 +1,5 @@
 # ======================================================================
-# SSM v32.1 — Hybrid + hard baseline + LAND + optional AI advisory
+# SSM v32.4 — Hybrid + hard baseline + LAND + optional AI advisory
 # ======================================================================
 # G official market | S structural priors | Ground automator ×5 | GAP/alarms
 # Ground works WITHOUT keys (priors); ACLED optional upgrade
